@@ -1,0 +1,5 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/clever_bank
+    username: enter your username
+    password: enter your password
