@@ -13,6 +13,7 @@ import com.grigoryev.cleverbankreactiveremaster.service.UserService;
 import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +28,7 @@ public class AccountServiceImpl implements AccountService {
     private final UserService userService;
     private final BankService bankService;
     private final AccountMapper accountMapper;
+    private final TransactionalOperator operator;
 
     @Override
     public Mono<AccountData> findById(String id) {
@@ -61,14 +63,15 @@ public class AccountServiceImpl implements AccountService {
                     return account;
                 }))
                 .flatMap(accountRepository::save)
-                .map(accountMapper::toResponse);
+                .map(accountMapper::toResponse)
+                .as(operator::transactional);
     }
 
     @Override
     public Mono<AccountData> updateBalance(Account account, BigDecimal balance) {
-        return Mono.just(account)
-                .map(acc -> acc.setBalance(balance))
-                .flatMap(accountRepository::update);
+        return Mono.fromSupplier(() -> account.setBalance(balance))
+                .flatMap(accountRepository::update)
+                .as(operator::transactional);
     }
 
     @Override
@@ -81,13 +84,15 @@ public class AccountServiceImpl implements AccountService {
                 })
                 .map(accountMapper::fromAccountData)
                 .flatMap(accountRepository::update)
-                .map(accountMapper::toResponse);
+                .map(accountMapper::toResponse)
+                .as(operator::transactional);
     }
 
     @Override
     public Mono<DeleteResponse> delete(String id) {
         return accountRepository.delete(id)
                 .map(account -> new DeleteResponse("Account with ID " + id + " was successfully deleted"))
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new AccountNotFoundException("No Account with ID " + id + " to delete")));
     }
 

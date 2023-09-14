@@ -11,6 +11,7 @@ import com.grigoryev.cleverbankreactiveremaster.service.UserService;
 import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final TransactionalOperator operator;
 
     @Override
     public Mono<User> findById(Long id) {
@@ -43,11 +45,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<UserResponse> save(UserRequest request) {
-        return Mono.just(request)
-                .map(userMapper::fromRequest)
+        return Mono.fromSupplier(() -> userMapper.fromRequest(request))
                 .map(user -> user.setRegisterDate(LocalDate.now()))
                 .flatMap(userRepository::save)
                 .map(userMapper::toResponse)
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new UniquePhoneNumberException("User with phone number "
                                                                          + request.mobileNumber() + " is already exist")));
     }
@@ -62,6 +64,7 @@ public class UserServiceImpl implements UserService {
                     return userRepository.update(user);
                 })
                 .map(userMapper::toResponse)
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new UniquePhoneNumberException("User with phone number "
                                                                          + request.mobileNumber() + " is already exist")));
     }
@@ -70,6 +73,7 @@ public class UserServiceImpl implements UserService {
     public Mono<DeleteResponse> delete(Long id) {
         return userRepository.delete(id)
                 .map(user -> new DeleteResponse("User with ID " + id + " was successfully deleted"))
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new UserNotFoundException("No User with ID " + id + " to delete")));
     }
 

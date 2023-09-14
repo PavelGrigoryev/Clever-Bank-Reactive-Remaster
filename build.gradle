@@ -48,7 +48,6 @@ dependencies {
     liquibaseRuntime "info.picocli:picocli:$picocliVersion"
     liquibaseRuntime "org.postgresql:postgresql:$postgresqlVersion"
 
-    runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'org.postgresql:r2dbc-postgresql'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

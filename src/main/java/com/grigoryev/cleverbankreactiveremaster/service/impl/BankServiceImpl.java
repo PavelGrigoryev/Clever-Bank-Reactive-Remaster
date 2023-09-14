@@ -11,6 +11,7 @@ import com.grigoryev.cleverbankreactiveremaster.service.BankService;
 import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Bank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -20,6 +21,7 @@ public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
     private final BankMapper bankMapper;
+    private final TransactionalOperator operator;
 
     @Override
     public Mono<Bank> findById(Long id) {
@@ -41,10 +43,10 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public Mono<BankResponse> save(BankRequest request) {
-        return Mono.just(request)
-                .map(bankMapper::fromRequest)
+        return Mono.fromSupplier(() -> bankMapper.fromRequest(request))
                 .flatMap(bankRepository::save)
                 .map(bankMapper::toResponse)
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new UniquePhoneNumberException("Bank with phone number "
                                                                          + request.phoneNumber() + " is already exist")));
     }
@@ -58,6 +60,7 @@ public class BankServiceImpl implements BankService {
                     return bankRepository.update(bank);
                 })
                 .map(bankMapper::toResponse)
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new UniquePhoneNumberException("Bank with phone number "
                                                                          + request.phoneNumber() + " is already exist")));
     }
@@ -66,6 +69,7 @@ public class BankServiceImpl implements BankService {
     public Mono<DeleteResponse> delete(Long id) {
         return bankRepository.delete(id)
                 .map(bank -> new DeleteResponse("Bank with ID " + id + " was successfully deleted"))
+                .as(operator::transactional)
                 .switchIfEmpty(Mono.error(new BankNotFoundException("No Bank with ID " + id + " to delete")));
     }
 
