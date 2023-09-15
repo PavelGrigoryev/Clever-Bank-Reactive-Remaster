@@ -26,8 +26,7 @@ public interface TransactionMapper {
     @Mapping(target = "accountRecipientId", source = "request.accountRecipientId")
     @Mapping(target = "date", expression = "java(LocalDate.now())")
     @Mapping(target = "time", expression = "java(LocalTime.now())")
-    Transaction toChangeTransaction(Type type,
-                                    Long bankRecipientId,
+    Transaction toChangeTransaction(Long bankRecipientId,
                                     Long bankSenderId,
                                     ChangeBalanceRequest request);
 
