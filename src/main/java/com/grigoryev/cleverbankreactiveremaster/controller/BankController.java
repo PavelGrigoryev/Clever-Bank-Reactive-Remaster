@@ -1,48 +1,61 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankResponse;
 import com.grigoryev.cleverbankreactiveremaster.service.BankService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Controller
+@Validated
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/banks")
 public class BankController {
 
     private final BankService bankService;
 
-    public Mono<ServerResponse> findByIdResponse(ServerRequest request) {
-        Long id = Long.valueOf(request.pathVariable("id"));
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<BankResponse>> findByIdResponse(@PathVariable @Positive Long id) {
         return bankService.findByIdResponse(id)
-                .flatMap(bankResponse -> ServerResponse.ok().bodyValue(bankResponse));
+                .map(ResponseEntity::ok);
     }
 
-    public Mono<ServerResponse> findAll() {
-        return ServerResponse.ok().body(bankService.findAll(), BankResponse.class);
+    @GetMapping
+    public Flux<BankResponse> findAll() {
+        return bankService.findAll();
     }
 
-    public Mono<ServerResponse> save(ServerRequest request) {
-        Mono<BankRequest> bankRequest = request.bodyToMono(BankRequest.class);
-        return bankRequest.flatMap(bankService::save)
-                .flatMap(bankResponse -> ServerResponse.status(HttpStatus.CREATED).bodyValue(bankResponse));
+    @PostMapping
+    public Mono<ResponseEntity<BankResponse>> save(@RequestBody @Valid BankRequest request) {
+        return bankService.save(request)
+                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse));
     }
 
-    public Mono<ServerResponse> update(ServerRequest request) {
-        Long id = Long.valueOf(request.pathVariable("id"));
-        Mono<BankRequest> bankRequest = request.bodyToMono(BankRequest.class);
-        return bankRequest.flatMap(req -> bankService.update(id, req))
-                .flatMap(bankResponse -> ServerResponse.status(HttpStatus.CREATED).bodyValue(bankResponse));
+    @PutMapping("/{id}")
+    public Mono<ResponseEntity<BankResponse>> update(@PathVariable @Positive Long id, @RequestBody @Valid BankRequest request) {
+        return bankService.update(id, request)
+                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse));
     }
 
-    public Mono<ServerResponse> delete(ServerRequest request) {
-        Long id = Long.valueOf(request.pathVariable("id"));
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<DeleteResponse>> delete(@PathVariable @Positive Long id) {
         return bankService.delete(id)
-                .flatMap(deleteResponse -> ServerResponse.ok().bodyValue(deleteResponse));
+                .map(ResponseEntity::ok);
     }
 
 }

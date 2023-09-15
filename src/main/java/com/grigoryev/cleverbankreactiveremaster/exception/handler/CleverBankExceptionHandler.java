@@ -1,55 +1,53 @@
 package com.grigoryev.cleverbankreactiveremaster.exception.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.BadRequestException;
 import com.grigoryev.cleverbankreactiveremaster.exception.internalservererror.InternalServerErrorException;
-import com.grigoryev.cleverbankreactiveremaster.exception.internalservererror.JsonParseException;
 import com.grigoryev.cleverbankreactiveremaster.exception.notfound.NotFoundException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.annotation.Order;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebExceptionHandler;
-import reactor.core.publisher.Mono;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 
-@Component
-@Order(-2)
-@RequiredArgsConstructor
-public class CleverBankExceptionHandler implements WebExceptionHandler {
+import java.util.List;
 
-    private final ObjectMapper objectMapper;
+@RestControllerAdvice
+public class CleverBankExceptionHandler {
 
-    @NonNull
-    @Override
-    public Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable ex) {
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        HttpStatus status;
-        if (ex instanceof NotFoundException) {
-            status = HttpStatus.NOT_FOUND;
-        } else if (ex instanceof BadRequestException) {
-            status = HttpStatus.BAD_REQUEST;
-        } else if (ex instanceof InternalServerErrorException) {
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-        } else {
-            return Mono.error(ex);
-        }
-        exchange.getResponse().setStatusCode(status);
-        return getExceptionResponse(exchange, ex);
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<ValidationErrorResponse> handleWebExchangeBindException(WebExchangeBindException e) {
+        List<Violation> violations = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fieldError -> new Violation(fieldError.getField(), fieldError.getDefaultMessage()))
+                .toList();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ValidationErrorResponse(violations));
     }
 
-    private Mono<Void> getExceptionResponse(ServerWebExchange exchange, Throwable ex) {
-        byte[] data;
-        try {
-            data = objectMapper.writeValueAsBytes(new ExceptionResponse(ex.getMessage()));
-        } catch (JsonProcessingException e) {
-            throw new JsonParseException(e.getMessage());
-        }
-        return exchange.getResponse().writeWith(Mono.just(data)
-                .map(bytes -> exchange.getResponse().bufferFactory().wrap(bytes)));
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleConstraintValidationException(ConstraintViolationException e) {
+        List<Violation> violations = e.getConstraintViolations()
+                .stream()
+                .map(constraintViolation -> new Violation(constraintViolation.getPropertyPath().toString(),
+                        constraintViolation.getMessage()))
+                .toList();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ValidationErrorResponse(violations));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<ExceptionResponse> handleInternalServerErrorException(InternalServerErrorException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ExceptionResponse(e.getMessage()));
     }
 
 }
