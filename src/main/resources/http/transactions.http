@@ -1,5 +1,5 @@
 ###пополнения и снятия средств со счета
-POST http://localhost:8080/transactions
+POST http://localhost:8080/transactions/change
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ###перевод с одного счёта на другой
-POST http://localhost:8080/transactions
+POST http://localhost:8080/transactions/transfer
 Content-Type: application/json
 
 {

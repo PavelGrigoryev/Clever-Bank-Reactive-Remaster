@@ -2,6 +2,8 @@ package com.grigoryev.cleverbankreactiveremaster.controller;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceRequest;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,9 +21,15 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @PostMapping
+    @PostMapping("/change")
     public Mono<ResponseEntity<ChangeBalanceResponse>> changeBalance(@RequestBody ChangeBalanceRequest request) {
         return transactionService.changeBalance(request)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
+    }
+
+    @PostMapping("/transfer")
+    public Mono<ResponseEntity<TransferBalanceResponse>> transferBalance(@RequestBody TransferBalanceRequest request) {
+        return transactionService.transferBalance(request)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 

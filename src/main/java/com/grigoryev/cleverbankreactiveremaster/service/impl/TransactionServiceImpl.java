@@ -9,9 +9,12 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionState
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.AccountClosedException;
+import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.BadCurrencyException;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.InsufficientFundsException;
 import com.grigoryev.cleverbankreactiveremaster.mapper.AccountMapper;
 import com.grigoryev.cleverbankreactiveremaster.mapper.TransactionMapper;
+import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
+import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
@@ -38,20 +41,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Mono<ChangeBalanceResponse> changeBalance(ChangeBalanceRequest request) {
         return accountService.findById(request.accountRecipientId())
-                .flatMap(accountData -> {
-                    BigDecimal oldBalance = accountData.getBalance();
-                    if (accountData.getClosingDate() != null) {
-                        return Mono.error(
-                                new AccountClosedException("Account with ID " + request.accountRecipientId()
-                                                           + " is closed since " + accountData.getClosingDate()));
-                    } else if (request.type() != Type.REPLENISHMENT && oldBalance.compareTo(request.sum()) < 0) {
-                      return   Mono.error(
-                                new InsufficientFundsException("Insufficient funds in the account! You want to withdrawal "
-                                                               + request.sum() + ", but you have only " + oldBalance));
-                    } else {
-                        return Mono.just(accountData);
-                    }
-                })
+                .doOnNext(this::validateAccountForClosingDate)
+                .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, request.type(), request.sum()))
                 .flatMap(accountData -> {
                     BigDecimal newBalance = request.type() == Type.REPLENISHMENT
                             ? accountData.getBalance().add(request.sum())
@@ -79,7 +70,35 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<TransferBalanceResponse> transferBalance(TransferBalanceRequest request) {
-        return null;
+        return accountService.findById(request.accountSenderId())
+                .doOnNext(this::validateAccountForClosingDate)
+                .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, Type.TRANSFER, request.sum()))
+                .zipWith(accountService.findById(request.accountRecipientId())
+                        .doOnNext(this::validateAccountForClosingDate))
+                .doOnNext(tuple -> validateAccountForCurrency(tuple.getT1().getCurrency(), tuple.getT2().getCurrency()))
+                .flatMap(tuple -> accountService.updateBalance(accountMapper
+                                .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
+                        .zipWith(accountService.updateBalance(accountMapper
+                                .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(request.sum()))))
+                .flatMap(tuple -> {
+                    Transaction transaction = transactionMapper.toTransferTransaction(
+                            Type.TRANSFER,
+                            tuple.getT1().getBank().getId(),
+                            tuple.getT2().getBank().getId(),
+                            tuple.getT1().getId(),
+                            tuple.getT2().getId(),
+                            request.sum());
+                    return transactionRepository.save(transaction)
+                            .map(savedTransaction -> transactionMapper.toTransferResponse(
+                                    savedTransaction,
+                                    tuple.getT1().getCurrency(),
+                                    tuple.getT1().getBank().getName(),
+                                    tuple.getT2().getBank().getName(),
+                                    tuple.getT1().getBalance().add(request.sum()),
+                                    tuple.getT1().getBalance(),
+                                    tuple.getT2().getBalance().subtract(request.sum()),
+                                    tuple.getT2().getBalance()));
+                });
     }
 
     @Override
@@ -105,6 +124,28 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Flux<TransactionResponse> findAllByRecipientAccountId(String id) {
         return null;
+    }
+
+    private void validateAccountForClosingDate(AccountData accountData) {
+        if (accountData.getClosingDate() != null) {
+            throw new AccountClosedException("Account with ID " + accountData.getId()
+                                             + " is closed since " + accountData.getClosingDate());
+        }
+    }
+
+    private void validateAccountForSufficientBalance(AccountData accountData, Type type, BigDecimal sum) {
+        BigDecimal oldBalance = accountData.getBalance();
+        if (type != Type.REPLENISHMENT && oldBalance.compareTo(sum) < 0) {
+            throw new InsufficientFundsException("Insufficient funds in the account! You want to withdrawal/transfer "
+                                                 + sum + ", but you have only " + oldBalance);
+        }
+    }
+
+    private void validateAccountForCurrency(Currency senderCurrency, Currency recipientCurrency) {
+        if (!senderCurrency.equals(recipientCurrency)) {
+            throw new BadCurrencyException("Your currency is " + recipientCurrency
+                                           + ", but account currency is " + senderCurrency);
+        }
     }
 
 }
