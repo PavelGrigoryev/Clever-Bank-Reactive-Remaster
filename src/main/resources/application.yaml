@@ -3,3 +3,8 @@ spring:
     url: r2dbc:postgresql://localhost:5432/clever_bank
     username: enter your username
     password: enter your password
+scheduler:
+  monthPercentage: 1.0
+  initialDelay: 10000
+  period: 30000
+  enabled: true
