@@ -3,9 +3,9 @@ POST http://localhost:8080/transactions/change
 Content-Type: application/json
 
 {
-  "account_sender_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q",
-  "account_recipient_id": "0J2O 6O3P 1CUB VZUT 91SJ X3FU MUR4",
-  "sum": 555.55,
+  "account_sender_id": "55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9",
+  "account_recipient_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
+  "sum": 133.35,
   "type": "REPLENISHMENT"
 }
 
@@ -14,9 +14,9 @@ POST http://localhost:8080/transactions/transfer
 Content-Type: application/json
 
 {
-  "account_sender_id": "0J2O 6O3P 1CUB VZUT 91SJ X3FU MUR4",
-  "account_recipient_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q",
-  "sum": 1200
+  "account_sender_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
+  "account_recipient_id": "55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9",
+  "sum": 157.29
 }
 
 ###формирования выписки по транзакциям пользователя за период времени
@@ -24,9 +24,9 @@ POST http://localhost:8080/transactions/statement
 Content-Type: application/json
 
 {
-  "from": "2023-09-15",
-  "to": "2023-09-15",
-  "account_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q"
+  "from": "2023-09-16",
+  "to": "2023-09-16",
+  "account_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62"
 }
 
 ###информация о количестве потраченных и полученных средств за период времени
@@ -34,9 +34,9 @@ POST http://localhost:8080/transactions/amount
 Content-Type: application/json
 
 {
-  "from": "2023-09-15",
-  "to": "2023-09-15",
-  "account_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q"
+  "from": "2023-09-16",
+  "to": "2023-09-16",
+  "account_id": "55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9"
 }
 
 ###найти транзакцию по id

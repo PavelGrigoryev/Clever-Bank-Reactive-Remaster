@@ -19,7 +19,9 @@ import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
+import com.grigoryev.cleverbankreactiveremaster.service.CheckService;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
+import com.grigoryev.cleverbankreactiveremaster.service.UploadFileService;
 import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionMapper transactionMapper;
     private final AccountMapper accountMapper;
     private final TransactionalOperator operator;
+    private final CheckService checkService;
+    private final UploadFileService uploadFileService;
 
     @Override
     public Mono<ChangeBalanceResponse> changeBalance(ChangeBalanceRequest request) {
@@ -67,6 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
                                             : tuple.getT1().getBalance().add(request.sum()),
                                     tuple.getT1().getBalance()));
                 })
+                .doOnNext(response -> uploadFileService.uploadCheck(checkService.createChangeBalanceCheck(response)))
                 .as(operator::transactional);
     }
 
@@ -101,6 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
                                     tuple.getT2().getBalance().subtract(request.sum()),
                                     tuple.getT2().getBalance()));
                 })
+                .doOnNext(response -> uploadFileService.uploadCheck(checkService.createTransferBalanceCheck(response)))
                 .as(operator::transactional);
     }
 
@@ -120,6 +126,7 @@ public class TransactionServiceImpl implements TransactionService {
                                 accountData,
                                 request,
                                 transactionStatements)))
+                .doOnNext(response -> uploadFileService.uploadStatement(checkService.createTransactionStatement(response)))
                 .as(operator::transactional);
     }
 
@@ -138,6 +145,7 @@ public class TransactionServiceImpl implements TransactionService {
                                 request,
                                 tuple.getT1(),
                                 tuple.getT2())))
+                .doOnNext(response -> uploadFileService.uploadAmount(checkService.createAmountStatement(response)))
                 .as(operator::transactional);
     }
 
