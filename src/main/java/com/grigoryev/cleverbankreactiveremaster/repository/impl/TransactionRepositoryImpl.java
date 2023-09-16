@@ -82,7 +82,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         .where(TRANSACTION.DATE.between(from).and(to))
                         .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.TRANSFER.toString())))
                         .or(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.WITHDRAWAL.toString()))))
-                .map(r -> r.getValue("spent", BigDecimal.class));
+                .map(r -> r.getValue("spent") == null
+                        ? BigDecimal.ZERO
+                        : r.getValue("spent", BigDecimal.class));
     }
 
     @Override
@@ -91,7 +93,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         .from(TRANSACTION)
                         .where(TRANSACTION.DATE.between(from).and(to))
                         .and(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.notEqual(Type.WITHDRAWAL.toString()))))
-                .map(r -> r.getValue("received", BigDecimal.class));
+                .map(r -> r.getValue("received") == null
+                        ? BigDecimal.ZERO
+                        : r.getValue("received", BigDecimal.class));
     }
 
 }

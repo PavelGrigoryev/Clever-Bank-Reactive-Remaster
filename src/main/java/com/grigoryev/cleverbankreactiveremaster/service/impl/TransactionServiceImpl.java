@@ -11,6 +11,7 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceR
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.AccountClosedException;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.BadCurrencyException;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.InsufficientFundsException;
+import com.grigoryev.cleverbankreactiveremaster.exception.notfound.TransactionNotFoundException;
 import com.grigoryev.cleverbankreactiveremaster.mapper.AccountMapper;
 import com.grigoryev.cleverbankreactiveremaster.mapper.TransactionMapper;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
@@ -98,32 +99,64 @@ public class TransactionServiceImpl implements TransactionService {
                                     tuple.getT1().getBalance(),
                                     tuple.getT2().getBalance().subtract(request.sum()),
                                     tuple.getT2().getBalance()));
-                });
+                })
+                .as(operator::transactional);
     }
 
     @Override
     public Mono<TransactionStatementResponse> findAllByPeriodOfDateAndAccountId(TransactionStatementRequest request) {
-        return null;
+        return accountService.findById(request.accountId())
+                .flatMap(accountData -> transactionRepository.findAllByPeriodOfDateAndAccountId(
+                                request.from(), request.to(), accountData.getId())
+                        .switchIfEmpty(Mono.error(new TransactionNotFoundException(
+                                "It is not possible to create a transaction statement because" +
+                                " you do not have any transactions for this period of time : from "
+                                + request.from() + " to " + request.to())))
+                        .collectList()
+                        .map(transactionStatements -> transactionMapper.toStatementResponse(
+                                accountData.getBank().getName(),
+                                accountData.getUser(),
+                                accountData,
+                                request,
+                                transactionStatements)))
+                .as(operator::transactional);
     }
 
     @Override
     public Mono<AmountStatementResponse> findSumOfFundsByPeriodOfDateAndAccountId(TransactionStatementRequest request) {
-        return null;
+        return accountService.findById(request.accountId())
+                .flatMap(accountData -> transactionRepository
+                        .findSumOfSpentFundsByPeriodOfDateAndAccountId(request.from(), request.to(), accountData.getId())
+                        .zipWith(transactionRepository
+                                .findSumOfReceivedFundsByPeriodOfDateAndAccountId(
+                                        request.from(), request.to(), accountData.getId()))
+                        .map(tuple -> transactionMapper.toAmountResponse(
+                                accountData.getBank().getName(),
+                                accountData.getUser(),
+                                accountData,
+                                request,
+                                tuple.getT1(),
+                                tuple.getT2())))
+                .as(operator::transactional);
     }
 
     @Override
     public Mono<TransactionResponse> findById(Long id) {
-        return null;
+        return transactionRepository.findById(id)
+                .map(transactionMapper::toResponse)
+                .switchIfEmpty(Mono.error(new TransactionNotFoundException("Transaction with ID " + id + " is not found!")));
     }
 
     @Override
     public Flux<TransactionResponse> findAllBySendersAccountId(String id) {
-        return null;
+        return transactionRepository.findAllBySendersAccountId(id)
+                .map(transactionMapper::toResponse);
     }
 
     @Override
     public Flux<TransactionResponse> findAllByRecipientAccountId(String id) {
-        return null;
+        return transactionRepository.findAllByRecipientAccountId(id)
+                .map(transactionMapper::toResponse);
     }
 
     private void validateAccountForClosingDate(AccountData accountData) {
