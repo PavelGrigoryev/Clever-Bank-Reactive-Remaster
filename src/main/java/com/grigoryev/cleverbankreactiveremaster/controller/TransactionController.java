@@ -9,9 +9,12 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionState
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transactions")
@@ -29,13 +33,13 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/change")
-    public Mono<ResponseEntity<ChangeBalanceResponse>> changeBalance(@RequestBody ChangeBalanceRequest request) {
+    public Mono<ResponseEntity<ChangeBalanceResponse>> changeBalance(@RequestBody @Valid ChangeBalanceRequest request) {
         return transactionService.changeBalance(request)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 
     @PostMapping("/transfer")
-    public Mono<ResponseEntity<TransferBalanceResponse>> transferBalance(@RequestBody TransferBalanceRequest request) {
+    public Mono<ResponseEntity<TransferBalanceResponse>> transferBalance(@RequestBody @Valid TransferBalanceRequest request) {
         return transactionService.transferBalance(request)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
@@ -53,7 +57,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<TransactionResponse>> findById(@PathVariable Long id) {
+    public Mono<ResponseEntity<TransactionResponse>> findById(@PathVariable @Positive Long id) {
         return transactionService.findById(id)
                 .map(ResponseEntity::ok);
     }

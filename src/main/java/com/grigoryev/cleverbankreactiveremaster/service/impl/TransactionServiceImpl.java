@@ -43,9 +43,9 @@ public class TransactionServiceImpl implements TransactionService {
     public Mono<ChangeBalanceResponse> changeBalance(ChangeBalanceRequest request) {
         return accountService.findById(request.accountRecipientId())
                 .doOnNext(this::validateAccountForClosingDate)
-                .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, request.type(), request.sum()))
+                .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, Type.valueOf(request.type()), request.sum()))
                 .flatMap(accountData -> {
-                    BigDecimal newBalance = request.type() == Type.REPLENISHMENT
+                    BigDecimal newBalance = Type.valueOf(request.type()) == Type.REPLENISHMENT
                             ? accountData.getBalance().add(request.sum())
                             : accountData.getBalance().subtract(request.sum());
                     return accountService.updateBalance(accountMapper.fromAccountData(accountData), newBalance);
@@ -62,7 +62,8 @@ public class TransactionServiceImpl implements TransactionService {
                                     tuple.getT2().getBank().getName(),
                                     tuple.getT1().getBank().getName(),
                                     tuple.getT1().getCurrency(),
-                                    request.type() == Type.REPLENISHMENT ? tuple.getT1().getBalance().subtract(request.sum())
+                                    Type.valueOf(request.type()) == Type.REPLENISHMENT
+                                            ? tuple.getT1().getBalance().subtract(request.sum())
                                             : tuple.getT1().getBalance().add(request.sum()),
                                     tuple.getT1().getBalance()));
                 })

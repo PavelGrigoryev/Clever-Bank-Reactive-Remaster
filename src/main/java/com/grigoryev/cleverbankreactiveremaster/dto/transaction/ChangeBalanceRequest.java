@@ -2,13 +2,19 @@ package com.grigoryev.cleverbankreactiveremaster.dto.transaction;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.grigoryev.cleverbankreactiveremaster.model.Type;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ChangeBalanceRequest(String accountSenderId,
                                    String accountRecipientId,
+
+                                   @Positive
                                    BigDecimal sum,
-                                   Type type) {
+
+                                   @Pattern(regexp = "REPLENISHMENT|WITHDRAWAL",
+                                           message = "Available types are: REPLENISHMENT or WITHDRAWAL")
+                                   String type) {
 }
