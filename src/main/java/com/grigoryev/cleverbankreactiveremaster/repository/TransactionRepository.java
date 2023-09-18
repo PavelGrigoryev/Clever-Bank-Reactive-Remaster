@@ -1,7 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.repository;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatement;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Transaction;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

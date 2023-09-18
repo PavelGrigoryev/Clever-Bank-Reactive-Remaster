@@ -3,7 +3,7 @@ package com.grigoryev.cleverbankreactiveremaster.service;
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.user.UserRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.user.UserResponse;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -8,7 +8,7 @@ import com.grigoryev.cleverbankreactiveremaster.exception.notfound.BankNotFoundE
 import com.grigoryev.cleverbankreactiveremaster.mapper.BankMapper;
 import com.grigoryev.cleverbankreactiveremaster.repository.BankRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.BankService;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Bank;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;

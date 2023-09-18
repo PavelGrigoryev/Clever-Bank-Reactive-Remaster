@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Bank;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

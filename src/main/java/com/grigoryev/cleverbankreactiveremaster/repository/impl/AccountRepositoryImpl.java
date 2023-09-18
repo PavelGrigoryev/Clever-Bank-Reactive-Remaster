@@ -4,19 +4,19 @@ import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
 import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.repository.AccountRepository;
 import com.grigoryev.cleverbankreactiveremaster.util.RandomStringGenerator;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Bank;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
-import com.grigoryev.cleverbankrectiveremaster.tables.records.AccountRecord;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.records.AccountRecord;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.grigoryev.cleverbankrectiveremaster.tables.Account.ACCOUNT;
-import static com.grigoryev.cleverbankrectiveremaster.tables.Bank.BANK;
-import static com.grigoryev.cleverbankrectiveremaster.tables.User.USER;
+import static com.grigoryev.cleverbankreactiveremaster.tables.Account.ACCOUNT;
+import static com.grigoryev.cleverbankreactiveremaster.tables.Bank.BANK;
+import static com.grigoryev.cleverbankreactiveremaster.tables.User.USER;
 
 @Repository
 @RequiredArgsConstructor

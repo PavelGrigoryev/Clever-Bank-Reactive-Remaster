@@ -22,7 +22,7 @@ import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
 import com.grigoryev.cleverbankreactiveremaster.service.CheckService;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
 import com.grigoryev.cleverbankreactiveremaster.service.UploadFileService;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Transaction;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;

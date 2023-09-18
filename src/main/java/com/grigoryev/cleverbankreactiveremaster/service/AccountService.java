@@ -4,7 +4,7 @@ import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountResponse;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

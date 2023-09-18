@@ -1,6 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository;
 
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

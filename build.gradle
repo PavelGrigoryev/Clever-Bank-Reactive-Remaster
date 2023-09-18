@@ -96,7 +96,7 @@ jooq {
                         fluentSetters = true
                     }
                     target {
-                        packageName = 'com.grigoryev.cleverbankrectiveremaster'
+                        packageName = 'com.grigoryev.cleverbankreactiveremaster'
                         directory = 'build/generated/sources/jooq/main'
                     }
                 }

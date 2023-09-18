@@ -8,7 +8,7 @@ import com.grigoryev.cleverbankreactiveremaster.exception.notfound.UserNotFoundE
 import com.grigoryev.cleverbankreactiveremaster.mapper.UserMapper;
 import com.grigoryev.cleverbankreactiveremaster.repository.UserRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.UserService;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;

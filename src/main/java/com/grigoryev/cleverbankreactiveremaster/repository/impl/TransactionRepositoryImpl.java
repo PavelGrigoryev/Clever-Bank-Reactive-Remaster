@@ -3,8 +3,8 @@ package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatement;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
-import com.grigoryev.cleverbankrectiveremaster.tables.Account;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Transaction;
+import com.grigoryev.cleverbankreactiveremaster.tables.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -14,9 +14,9 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static com.grigoryev.cleverbankrectiveremaster.Tables.ACCOUNT;
-import static com.grigoryev.cleverbankrectiveremaster.Tables.TRANSACTION;
-import static com.grigoryev.cleverbankrectiveremaster.Tables.USER;
+import static com.grigoryev.cleverbankreactiveremaster.Tables.ACCOUNT;
+import static com.grigoryev.cleverbankreactiveremaster.Tables.TRANSACTION;
+import static com.grigoryev.cleverbankreactiveremaster.Tables.USER;
 import static org.jooq.impl.DSL.sum;
 
 @Repository

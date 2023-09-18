@@ -1,7 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.repository;
 
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

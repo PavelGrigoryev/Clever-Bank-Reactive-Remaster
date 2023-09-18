@@ -3,7 +3,7 @@ package com.grigoryev.cleverbankreactiveremaster.mapper;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountResponse;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

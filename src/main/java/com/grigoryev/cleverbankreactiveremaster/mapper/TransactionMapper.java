@@ -11,8 +11,8 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceR
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
 import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Transaction;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.User;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

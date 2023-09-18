@@ -10,7 +10,7 @@ import com.grigoryev.cleverbankreactiveremaster.repository.AccountRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
 import com.grigoryev.cleverbankreactiveremaster.service.BankService;
 import com.grigoryev.cleverbankreactiveremaster.service.UserService;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Account;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;

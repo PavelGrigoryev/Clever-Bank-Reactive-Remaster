@@ -1,15 +1,15 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.repository.BankRepository;
-import com.grigoryev.cleverbankrectiveremaster.tables.pojos.Bank;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static com.grigoryev.cleverbankrectiveremaster.Tables.ACCOUNT;
-import static com.grigoryev.cleverbankrectiveremaster.Tables.BANK;
+import static com.grigoryev.cleverbankreactiveremaster.Tables.ACCOUNT;
+import static com.grigoryev.cleverbankreactiveremaster.Tables.BANK;
 
 @Repository
 @RequiredArgsConstructor
