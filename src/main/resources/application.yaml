@@ -3,8 +3,12 @@ spring:
     url: r2dbc:postgresql://localhost:5432/clever_bank
     username: enter your username
     password: enter your password
-scheduler:
+percentageScheduler:
   monthPercentage: 1.0
   initialDelay: 10000
   period: 30000
+BYNScheduler:
+  url: https://api.nbrb.by/exrates/rates/
+  cron: 30 0 0 * * ? # once per day at 00:00:30
+schedulers:
   enabled: true

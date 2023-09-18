@@ -19,10 +19,10 @@ public final class MonthPercentageScheduler {
     private final AccountService accountService;
     private final TransactionalOperator operator;
 
-    @Value("${scheduler.monthPercentage}")
+    @Value("${percentageScheduler.monthPercentage}")
     private String monthPercentage;
 
-    @Scheduled(initialDelayString = "${scheduler.initialDelay}", fixedRateString = "${scheduler.period}")
+    @Scheduled(initialDelayString = "${percentageScheduler.initialDelay}", fixedRateString = "${percentageScheduler.period}")
     private void chargePercentage() {
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();
@@ -34,10 +34,11 @@ public final class MonthPercentageScheduler {
             accountService.findAll()
                     .filter(account -> account.getClosingDate() == null)
                     .flatMap(account -> accountService.updateBalance(account,
-                            account.getBalance().multiply(new BigDecimal(monthPercentage))
-                                    .multiply(BigDecimal.valueOf(0.01))
-                                    .setScale(2, RoundingMode.DOWN)
-                                    .add(account.getBalance())).log())
+                                    account.getBalance().multiply(new BigDecimal(monthPercentage))
+                                            .multiply(BigDecimal.valueOf(0.01))
+                                            .setScale(2, RoundingMode.DOWN)
+                                            .add(account.getBalance()))
+                            .log())
                     .as(operator::transactional)
                     .subscribe();
         }
