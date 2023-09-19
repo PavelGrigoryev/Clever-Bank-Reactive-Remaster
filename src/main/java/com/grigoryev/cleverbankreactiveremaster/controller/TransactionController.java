@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
@@ -41,6 +42,12 @@ public class TransactionController {
     @PostMapping("/transfer")
     public Mono<ResponseEntity<TransferBalanceResponse>> transferBalance(@RequestBody @Valid TransferBalanceRequest request) {
         return transactionService.transferBalance(request)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
+    }
+
+    @PostMapping("/exchange/byn")
+    public Mono<ResponseEntity<BynExchangeResponse>> exchangeBalance(@RequestBody @Valid TransferBalanceRequest request) {
+        return transactionService.exchangeBalance(request)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 

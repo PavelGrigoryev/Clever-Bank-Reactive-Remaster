@@ -80,7 +80,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         return Mono.from(dslContext.select(sum(TRANSACTION.SUM).as("spent"))
                         .from(TRANSACTION)
                         .where(TRANSACTION.DATE.between(from).and(to))
-                        .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.TRANSFER.toString())))
+                        .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.TRANSFER.toString()))
+                                .or(TRANSACTION.TYPE.eq(Type.EXCHANGE.toString())))
                         .or(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.WITHDRAWAL.toString()))))
                 .map(r -> r.getValue("spent") == null
                         ? BigDecimal.ZERO

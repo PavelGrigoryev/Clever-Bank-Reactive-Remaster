@@ -19,9 +19,17 @@ public class BynCurrencyServiceImpl implements BynCurrencyService {
     private final TransactionalOperator operator;
 
     @Override
-    public Mono<BigDecimal> sumCurrencyExchange(Currency currency, BigDecimal sum) {
+    public Mono<BigDecimal> toByn(Currency currency, BigDecimal sum) {
         return bynCurrencyRepository.findByCurrencyIdForLocalDateNow(currency.getCode())
                 .map(bynCurrency -> sum.multiply(bynCurrency.getRate())
+                        .divide(BigDecimal.valueOf(bynCurrency.getScale()), 2, RoundingMode.DOWN))
+                .as(operator::transactional);
+    }
+
+    @Override
+    public Mono<BigDecimal> fromByn(Currency currency, BigDecimal sum) {
+        return bynCurrencyRepository.findByCurrencyIdForLocalDateNow(currency.getCode())
+                .map(bynCurrency -> sum.divide(bynCurrency.getRate(), 2, RoundingMode.DOWN)
                         .divide(BigDecimal.valueOf(bynCurrency.getScale()), 2, RoundingMode.DOWN))
                 .as(operator::transactional);
     }

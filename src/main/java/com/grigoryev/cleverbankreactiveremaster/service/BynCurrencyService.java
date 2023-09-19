@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 public interface BynCurrencyService {
 
-    Mono<BigDecimal> sumCurrencyExchange(Currency currency, BigDecimal sum);
+    Mono<BigDecimal> toByn(Currency currency, BigDecimal sum);
+
+    Mono<BigDecimal> fromByn(Currency currency, BigDecimal sum);
 
 }

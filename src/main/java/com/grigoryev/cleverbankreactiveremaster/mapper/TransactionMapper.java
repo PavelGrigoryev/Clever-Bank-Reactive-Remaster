@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.mapper;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
@@ -56,6 +57,19 @@ public interface TransactionMapper {
                                                BigDecimal senderNewBalance,
                                                BigDecimal recipientOldBalance,
                                                BigDecimal recipientNewBalance);
+
+    @Mapping(target = "transactionId", source = "transaction.id")
+    @Mapping(target = "currentSum", source = "transaction.sum")
+    BynExchangeResponse toBynExchangeResponse(Transaction transaction,
+                                              Currency currentCurrency,
+                                              Currency exchangeCurrency,
+                                              String bankSenderName,
+                                              String bankRecipientName,
+                                              BigDecimal exchangeSum,
+                                              BigDecimal senderOldBalance,
+                                              BigDecimal senderNewBalance,
+                                              BigDecimal recipientOldBalance,
+                                              BigDecimal recipientNewBalance);
 
     TransactionResponse toResponse(Transaction transaction);
 
