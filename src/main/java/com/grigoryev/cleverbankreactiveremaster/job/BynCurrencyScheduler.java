@@ -29,7 +29,7 @@ public final class BynCurrencyScheduler {
     @Value("${BYNScheduler.url}")
     private String url;
 
-    @Scheduled(cron = "${BYNScheduler.cron}")
+    @Scheduled(initialDelayString = "${BYNScheduler.initialDelay}", fixedRateString = "${BYNScheduler.fixedRate}")
     private void trackCurrency() {
         Currency[] currencies = {Currency.RUB, Currency.USD, Currency.EUR};
         WebClient webClient = WebClient.create();
@@ -49,9 +49,8 @@ public final class BynCurrencyScheduler {
                     .map(this::getBynCurrencyFromJsonNode)
                     .flatMap(bynCurrencyRepository::save)
                     .as(operator::transactional)
-                    .log()
+                    .log(this.getClass().getName())
                     .subscribe();
-
         }
     }
 

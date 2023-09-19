@@ -5,10 +5,11 @@ spring:
     password: enter your password
 percentageScheduler:
   monthPercentage: 1.0
-  initialDelay: 10000
-  period: 30000
+  initialDelay: 10000 # 110 seconds
+  fixedRate: 30000 # 30 seconds
 BYNScheduler:
   url: https://api.nbrb.by/exrates/rates/
-  cron: 30 0 0 * * ? # once per day at 00:00:30
+  initialDelay: 6000 # 6 seconds
+  fixedRate: 3600000 # 1hour
 schedulers:
   enabled: true

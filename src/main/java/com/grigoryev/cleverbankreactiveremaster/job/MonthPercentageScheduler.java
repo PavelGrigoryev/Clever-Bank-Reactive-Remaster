@@ -22,7 +22,7 @@ public final class MonthPercentageScheduler {
     @Value("${percentageScheduler.monthPercentage}")
     private String monthPercentage;
 
-    @Scheduled(initialDelayString = "${percentageScheduler.initialDelay}", fixedRateString = "${percentageScheduler.period}")
+    @Scheduled(initialDelayString = "${percentageScheduler.initialDelay}", fixedRateString = "${percentageScheduler.fixedRate}")
     private void chargePercentage() {
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();
@@ -38,7 +38,7 @@ public final class MonthPercentageScheduler {
                                             .multiply(BigDecimal.valueOf(0.01))
                                             .setScale(2, RoundingMode.DOWN)
                                             .add(account.getBalance()))
-                            .log())
+                            .log(this.getClass().getName()))
                     .as(operator::transactional)
                     .subscribe();
         }

@@ -19,6 +19,7 @@ import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
+import com.grigoryev.cleverbankreactiveremaster.service.BynCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.service.CheckService;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
 import com.grigoryev.cleverbankreactiveremaster.service.UploadFileService;
@@ -30,6 +31,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionalOperator operator;
     private final CheckService checkService;
     private final UploadFileService uploadFileService;
+    private final BynCurrencyService bynCurrencyService;
 
     @Override
     public Mono<ChangeBalanceResponse> changeBalance(ChangeBalanceRequest request) {
@@ -77,16 +80,28 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<TransferBalanceResponse> transferBalance(TransferBalanceRequest request) {
+        AtomicReference<BigDecimal> sum = new AtomicReference<>(request.sum());
         return accountService.findById(request.accountSenderId())
                 .doOnNext(this::validateAccountForClosingDate)
                 .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, Type.TRANSFER, request.sum()))
                 .zipWith(accountService.findById(request.accountRecipientId())
                         .doOnNext(this::validateAccountForClosingDate))
                 .doOnNext(tuple -> validateAccountForCurrency(tuple.getT1().getCurrency(), tuple.getT2().getCurrency()))
-                .flatMap(tuple -> accountService.updateBalance(accountMapper
-                                .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
-                        .zipWith(accountService.updateBalance(accountMapper
-                                .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(request.sum()))))
+                .flatMap(tuple -> {
+                    if (tuple.getT2().getCurrency().equals(Currency.BYN)) {
+                        return bynCurrencyService.sumCurrencyExchange(tuple.getT1().getCurrency(), request.sum())
+                                .doOnNext(sum::set)
+                                .flatMap(byn -> accountService.updateBalance(accountMapper
+                                                .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
+                                        .zipWith(accountService.updateBalance(accountMapper
+                                                .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(sum.get()))));
+                    } else {
+                        return accountService.updateBalance(accountMapper
+                                        .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
+                                .zipWith(accountService.updateBalance(accountMapper
+                                        .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(request.sum())));
+                    }
+                })
                 .flatMap(tuple -> {
                     Transaction transaction = transactionMapper.toTransferTransaction(
                             Type.TRANSFER,
@@ -103,7 +118,7 @@ public class TransactionServiceImpl implements TransactionService {
                                     tuple.getT2().getBank().getName(),
                                     tuple.getT1().getBalance().add(request.sum()),
                                     tuple.getT1().getBalance(),
-                                    tuple.getT2().getBalance().subtract(request.sum()),
+                                    tuple.getT2().getBalance().subtract(sum.get()),
                                     tuple.getT2().getBalance()));
                 })
                 .doOnNext(response -> uploadFileService.uploadCheck(checkService.createTransferBalanceCheck(response)))
@@ -185,8 +200,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void validateAccountForCurrency(Currency senderCurrency, Currency recipientCurrency) {
         if (!senderCurrency.equals(recipientCurrency)) {
-            throw new BadCurrencyException("Your currency is " + recipientCurrency
-                                           + ", but account currency is " + senderCurrency);
+            if (recipientCurrency.equals(Currency.BYN)) {
+                return;
+            }
+            throw new BadCurrencyException("Your currency " + recipientCurrency
+                                           + " is not supported for transfer to account with currency " + senderCurrency);
         }
     }
 
