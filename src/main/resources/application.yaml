@@ -7,7 +7,7 @@ percentageScheduler:
   monthPercentage: 1.0
   initialDelay: 10000 # 110 seconds
   fixedRate: 30000 # 30 seconds
-BYNScheduler:
+NbRbScheduler:
   url: https://api.nbrb.by/exrates/rates/
   initialDelay: 6000 # 6 seconds
   fixedRate: 3600000 # 1hour

@@ -21,8 +21,8 @@ import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
-import com.grigoryev.cleverbankreactiveremaster.service.BynCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.service.CheckService;
+import com.grigoryev.cleverbankreactiveremaster.service.NbRbCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
 import com.grigoryev.cleverbankreactiveremaster.service.UploadFileService;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
@@ -46,7 +46,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionalOperator operator;
     private final CheckService checkService;
     private final UploadFileService uploadFileService;
-    private final BynCurrencyService bynCurrencyService;
+    private final NbRbCurrencyService nbRbCurrencyService;
 
     @Override
     public Mono<ChangeBalanceResponse> changeBalance(ChangeBalanceRequest request) {
@@ -124,7 +124,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .zipWith(accountService.findById(request.accountRecipientId())
                         .doOnNext(this::validateAccountForClosingDate))
                 .doOnNext(tuple -> validateAccountsForBynCurrency(tuple.getT1().getCurrency(), tuple.getT2().getCurrency()))
-                .flatMap(tuple -> bynCurrencyService.toByn(tuple.getT1().getCurrency(), request.sum())
+                .flatMap(tuple -> nbRbCurrencyService.toByn(tuple.getT1().getCurrency(), request.sum())
                         .doOnNext(exchangedSum::set)
                         .flatMap(byn -> accountService.updateBalance(accountMapper
                                         .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
@@ -235,7 +235,7 @@ public class TransactionServiceImpl implements TransactionService {
                                            + ", but account currency is " + recipientCurrency);
         }
     }
-    
+
     private void validateAccountsForBynCurrency(Currency senderCurrency, Currency recipientCurrency) {
         if (!recipientCurrency.equals(Currency.BYN)) {
             throw new BadCurrencyException("Your currency " + senderCurrency

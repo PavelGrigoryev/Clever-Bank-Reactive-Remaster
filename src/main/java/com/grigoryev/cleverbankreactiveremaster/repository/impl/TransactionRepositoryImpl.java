@@ -4,7 +4,7 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionState
 import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
-import com.grigoryev.cleverbankreactiveremaster.service.BynCurrencyService;
+import com.grigoryev.cleverbankreactiveremaster.service.NbRbCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.tables.Account;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import static org.jooq.impl.DSL.sum;
 public class TransactionRepositoryImpl implements TransactionRepository {
 
     private final DSLContext dslContext;
-    private final BynCurrencyService bynCurrencyService;
+    private final NbRbCurrencyService nbRbCurrencyService;
 
     @Override
     public Mono<Transaction> findById(Long id) {
@@ -123,7 +123,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             : r.getValue("sum_with_exchange", BigDecimal.class);
                     return r.getValue("curr") == null
                             ? Mono.just(sumWithExchange.add(sumWithoutExchange))
-                            : bynCurrencyService.toByn(r.getValue("curr", Currency.class), sumWithExchange)
+                            : nbRbCurrencyService.toByn(r.getValue("curr", Currency.class), sumWithExchange)
                             .map(byn -> byn.add(sumWithoutExchange));
                 });
     }

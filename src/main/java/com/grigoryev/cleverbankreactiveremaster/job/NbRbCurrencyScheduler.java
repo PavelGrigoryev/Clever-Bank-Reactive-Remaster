@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grigoryev.cleverbankreactiveremaster.exception.internalservererror.JsonParseException;
 import com.grigoryev.cleverbankreactiveremaster.model.Currency;
-import com.grigoryev.cleverbankreactiveremaster.repository.BynCurrencyRepository;
-import com.grigoryev.cleverbankreactiveremaster.tables.pojos.BynCurrency;
+import com.grigoryev.cleverbankreactiveremaster.repository.NbRbCurrencyRepository;
+import com.grigoryev.cleverbankreactiveremaster.tables.pojos.NbRbCurrency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -20,16 +20,16 @@ import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
-public final class BynCurrencyScheduler {
+public final class NbRbCurrencyScheduler {
 
-    private final BynCurrencyRepository bynCurrencyRepository;
+    private final NbRbCurrencyRepository nbRbCurrencyRepository;
     private final TransactionalOperator operator;
     private final ObjectMapper objectMapper;
 
-    @Value("${BYNScheduler.url}")
+    @Value("${NbRbScheduler.url}")
     private String url;
 
-    @Scheduled(initialDelayString = "${BYNScheduler.initialDelay}", fixedRateString = "${BYNScheduler.fixedRate}")
+    @Scheduled(initialDelayString = "${NbRbScheduler.initialDelay}", fixedRateString = "${NbRbScheduler.fixedRate}")
     private void trackCurrency() {
         Currency[] currencies = {Currency.RUB, Currency.USD, Currency.EUR};
         WebClient webClient = WebClient.create();
@@ -47,19 +47,19 @@ public final class BynCurrencyScheduler {
                         }
                     })
                     .map(this::getBynCurrencyFromJsonNode)
-                    .flatMap(bynCurrencyRepository::save)
+                    .flatMap(nbRbCurrencyRepository::save)
                     .as(operator::transactional)
                     .log(this.getClass().getName())
                     .subscribe();
         }
     }
 
-    private BynCurrency getBynCurrencyFromJsonNode(JsonNode jsonNode) {
+    private NbRbCurrency getBynCurrencyFromJsonNode(JsonNode jsonNode) {
         int currencyId = jsonNode.at("/Cur_ID").asInt();
         String currencyName = jsonNode.at("/Cur_Abbreviation").asText();
         int scale = jsonNode.at("/Cur_Scale").asInt();
         BigDecimal rate = new BigDecimal(jsonNode.at("/Cur_OfficialRate").asText());
-        BynCurrency bynCurrency = new BynCurrency();
+        NbRbCurrency bynCurrency = new NbRbCurrency();
         bynCurrency.setCurrencyId(currencyId);
         bynCurrency.setCurrency(currencyName);
         bynCurrency.setScale(scale);

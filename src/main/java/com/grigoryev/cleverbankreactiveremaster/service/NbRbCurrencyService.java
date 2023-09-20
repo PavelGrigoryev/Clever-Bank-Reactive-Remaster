@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
-public interface BynCurrencyService {
+public interface NbRbCurrencyService {
 
     Mono<BigDecimal> toByn(Currency currency, BigDecimal sum);
 

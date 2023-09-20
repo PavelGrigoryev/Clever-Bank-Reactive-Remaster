@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS transaction
     sum                  NUMERIC     NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS byn_currency
+CREATE TABLE IF NOT EXISTS nb_rb_currency
 (
     id          BIGSERIAL PRIMARY KEY,
     currency_id INT     NOT NULL,
