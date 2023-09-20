@@ -26,12 +26,4 @@ public class BynCurrencyServiceImpl implements BynCurrencyService {
                 .as(operator::transactional);
     }
 
-    @Override
-    public Mono<BigDecimal> fromByn(Currency currency, BigDecimal sum) {
-        return bynCurrencyRepository.findByCurrencyIdForLocalDateNow(currency.getCode())
-                .map(bynCurrency -> sum.divide(bynCurrency.getRate(), 2, RoundingMode.DOWN)
-                        .divide(BigDecimal.valueOf(bynCurrency.getScale()), 2, RoundingMode.DOWN))
-                .as(operator::transactional);
-    }
-
 }

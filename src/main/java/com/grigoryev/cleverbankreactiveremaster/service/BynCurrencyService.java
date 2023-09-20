@@ -9,6 +9,4 @@ public interface BynCurrencyService {
 
     Mono<BigDecimal> toByn(Currency currency, BigDecimal sum);
 
-    Mono<BigDecimal> fromByn(Currency currency, BigDecimal sum);
-
 }
