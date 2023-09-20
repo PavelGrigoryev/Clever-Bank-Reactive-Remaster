@@ -152,6 +152,7 @@ public class TransactionServiceImpl implements TransactionService {
                                     tuple.getT2().getBalance()
                             ));
                 })
+                .doOnNext(response -> uploadFileService.uploadCheck(checkService.createExchangeBalanceCheck(response)))
                 .as(operator::transactional);
     }
 

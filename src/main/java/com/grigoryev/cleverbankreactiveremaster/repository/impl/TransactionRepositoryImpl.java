@@ -122,10 +122,10 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             ? BigDecimal.ZERO
                             : r.getValue("sum_with_exchange", BigDecimal.class);
                     return r.getValue("curr") == null
-                            ? Mono.just(BigDecimal.ZERO)
+                            ? Mono.just(sumWithExchange.add(sumWithoutExchange))
                             : bynCurrencyService.toByn(r.getValue("curr", Currency.class), sumWithExchange)
                             .map(byn -> byn.add(sumWithoutExchange));
-                }).log();
+                });
     }
 
 }

@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceResponse;
@@ -66,6 +67,37 @@ public class CheckServiceImpl implements CheckService {
                 response.accountSenderId(),
                 response.accountRecipientId(),
                 response.sum(), response.currency(),
+                repeat);
+    }
+
+    @Override
+    public String createExchangeBalanceCheck(BynExchangeResponse response) {
+        String repeat = "-".repeat(61);
+        return """
+                %s%s
+                | %36s%23s
+                | Чек: %52s |
+                | %s %46s |
+                | Тип транзакции: %41s |
+                | Банк отправителя: %39s |
+                | Банк получателя: %40s |
+                | Счет отправителя: %39s |
+                | Счет получателя: %40s |
+                | Сумма отправителя: %34s %s |
+                | Сумма получателя: %35s %s |
+                %s
+                """.formatted("\n",
+                repeat,
+                "Банковский чек", "|",
+                response.transactionId(),
+                response.date(), response.time().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                response.type().getName(),
+                response.bankSenderName(),
+                response.bankRecipientName(),
+                response.accountSenderId(),
+                response.accountRecipientId(),
+                response.currentSum(), response.currentCurrency(),
+                response.exchangeSum(), response.exchangeCurrency(),
                 repeat);
     }
 
