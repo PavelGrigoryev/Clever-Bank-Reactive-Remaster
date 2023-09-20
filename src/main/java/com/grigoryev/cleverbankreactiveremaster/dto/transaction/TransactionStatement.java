@@ -11,5 +11,6 @@ import java.time.LocalDate;
 public record TransactionStatement(LocalDate date,
                                    Type type,
                                    String userLastname,
-                                   BigDecimal sum) {
+                                   BigDecimal sumSender,
+                                   BigDecimal sumRecipient) {
 }

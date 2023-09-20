@@ -3,9 +3,9 @@ POST http://localhost:8080/transactions/change
 Content-Type: application/json
 
 {
-  "account_sender_id": "55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9",
-  "account_recipient_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
-  "sum": 133.35,
+  "account_sender_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
+  "account_recipient_id": "55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9",
+  "sum": 255,
   "type": "REPLENISHMENT"
 }
 
@@ -14,18 +14,18 @@ POST http://localhost:8080/transactions/transfer
 Content-Type: application/json
 
 {
-  "account_sender_id": "0J2O 6O3P 1CUB VZUT 91SJ X3FU MUR4",
-  "account_recipient_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q",
+  "account_sender_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
+  "account_recipient_id": "ZMEJ L8W1 YNCU JRK6 XOYG Z4R1 IDIJ",
   "sum": 20
 }
 
-###перевод с одного счёта на другой с обменом валют на BYN по курсу НБ РБ
-POST http://localhost:8080/transactions/exchange/byn
+###перевод с одного счёта на другой с обменом валют по курсу НБ РБ
+POST http://localhost:8080/transactions/exchange
 Content-Type: application/json
 
 {
-  "account_sender_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
-  "account_recipient_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q",
+  "account_sender_id": "G5QZ 6B43 A6XG AHNK CO6S PSO6 718Q",
+  "account_recipient_id": "FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62",
   "sum": 10
 }
 

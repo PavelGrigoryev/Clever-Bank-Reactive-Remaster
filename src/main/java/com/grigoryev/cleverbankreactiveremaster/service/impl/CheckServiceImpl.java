@@ -1,8 +1,8 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
-import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
@@ -71,7 +71,7 @@ public class CheckServiceImpl implements CheckService {
     }
 
     @Override
-    public String createExchangeBalanceCheck(BynExchangeResponse response) {
+    public String createExchangeBalanceCheck(ExchangeBalanceResponse response) {
         String repeat = "-".repeat(61);
         return """
                 %s%s
@@ -96,8 +96,8 @@ public class CheckServiceImpl implements CheckService {
                 response.bankRecipientName(),
                 response.accountSenderId(),
                 response.accountRecipientId(),
-                response.currentSum(), response.currentCurrency(),
-                response.exchangeSum(), response.exchangeCurrency(),
+                response.sumSender(), response.currencySender(),
+                response.sumRecipient(), response.currencyRecipient(),
                 repeat);
     }
 
@@ -106,10 +106,18 @@ public class CheckServiceImpl implements CheckService {
         String line = "|";
         StringBuilder result = new StringBuilder();
         response.transactions()
-                .forEach(transaction -> result.append("%s %4s %-15s от %-10s %9s %s %s%s"
-                        .formatted(transaction.date(), line, transaction.type().getName(), transaction.userLastname(),
-                                line, transaction.type() == Type.WITHDRAWAL ? "-" + transaction.sum() : transaction.sum(),
-                                response.currency(), "\n")));
+                .forEach(transaction -> {
+                    String sum = transaction.sumRecipient().toString();
+                    if (transaction.type().equals(Type.WITHDRAWAL)) {
+                        sum = "-" + transaction.sumRecipient();
+                    } else if ((transaction.type().equals(Type.TRANSFER) || transaction.type().equals(Type.EXCHANGE))
+                               && transaction.userLastname().equals(response.lastname())) {
+                        sum = "-" + transaction.sumSender();
+                    }
+                    result.append("%s %4s %-15s от %-10s %9s %s %s%s"
+                            .formatted(transaction.date(), line, transaction.type().getName(), transaction.userLastname(),
+                                    line, sum, response.currency(), "\n"));
+                });
         result.deleteCharAt(result.length() - 1);
         return """
                 %s%36s

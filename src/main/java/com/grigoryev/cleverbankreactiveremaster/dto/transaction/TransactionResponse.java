@@ -21,5 +21,6 @@ public record TransactionResponse(Long id,
                                   Long bankRecipientId,
                                   String accountSenderId,
                                   String accountRecipientId,
-                                  BigDecimal sum) {
+                                  BigDecimal sumSender,
+                                  BigDecimal sumRecipient) {
 }

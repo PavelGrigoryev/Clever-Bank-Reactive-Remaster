@@ -1,7 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
-import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
@@ -116,36 +116,36 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Mono<BynExchangeResponse> exchangeBalance(TransferBalanceRequest request) {
+    public Mono<ExchangeBalanceResponse> exchangeBalance(TransferBalanceRequest request) {
         AtomicReference<BigDecimal> exchangedSum = new AtomicReference<>(request.sum());
         return accountService.findById(request.accountSenderId())
                 .doOnNext(this::validateAccountForClosingDate)
                 .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, Type.EXCHANGE, request.sum()))
                 .zipWith(accountService.findById(request.accountRecipientId())
                         .doOnNext(this::validateAccountForClosingDate))
-                .doOnNext(tuple -> validateAccountsForBynCurrency(tuple.getT1().getCurrency(), tuple.getT2().getCurrency()))
-                .flatMap(tuple -> nbRbCurrencyService.toByn(tuple.getT1().getCurrency(), request.sum())
+                .flatMap(tuple -> nbRbCurrencyService.exchangeSumByCurrency(tuple.getT1().getCurrency(),
+                                tuple.getT2().getCurrency(), request.sum())
                         .doOnNext(exchangedSum::set)
                         .flatMap(byn -> accountService.updateBalance(accountMapper
                                         .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
                                 .zipWith(accountService.updateBalance(accountMapper
                                         .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(exchangedSum.get())))))
                 .flatMap(tuple -> {
-                    Transaction transaction = transactionMapper.toTransferTransaction(
+                    Transaction transaction = transactionMapper.toExchangeTransaction(
                             Type.EXCHANGE,
                             tuple.getT1().getBank().getId(),
                             tuple.getT2().getBank().getId(),
                             tuple.getT1().getId(),
                             tuple.getT2().getId(),
-                            request.sum());
+                            request.sum(),
+                            exchangedSum.get());
                     return transactionRepository.save(transaction)
-                            .map(savedTransaction -> transactionMapper.toBynExchangeResponse(
+                            .map(savedTransaction -> transactionMapper.toExchangeResponse(
                                     savedTransaction,
                                     tuple.getT1().getCurrency(),
                                     tuple.getT2().getCurrency(),
                                     tuple.getT1().getBank().getName(),
                                     tuple.getT2().getBank().getName(),
-                                    exchangedSum.get(),
                                     tuple.getT1().getBalance().add(request.sum()),
                                     tuple.getT1().getBalance(),
                                     tuple.getT2().getBalance().subtract(exchangedSum.get()),
@@ -233,13 +233,6 @@ public class TransactionServiceImpl implements TransactionService {
         if (!senderCurrency.equals(recipientCurrency)) {
             throw new BadCurrencyException("Your currency is " + senderCurrency
                                            + ", but account currency is " + recipientCurrency);
-        }
-    }
-
-    private void validateAccountsForBynCurrency(Currency senderCurrency, Currency recipientCurrency) {
-        if (!recipientCurrency.equals(Currency.BYN)) {
-            throw new BadCurrencyException("Your currency " + senderCurrency
-                                           + " is not supported for exchange to currency " + recipientCurrency);
         }
     }
 

@@ -7,6 +7,6 @@ import java.math.BigDecimal;
 
 public interface NbRbCurrencyService {
 
-    Mono<BigDecimal> toByn(Currency currency, BigDecimal sum);
+    Mono<BigDecimal> exchangeSumByCurrency(Currency currencySender, Currency currencyRecipient, BigDecimal sum);
 
 }

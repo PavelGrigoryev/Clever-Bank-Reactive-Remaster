@@ -1,7 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
-import com.grigoryev.cleverbankreactiveremaster.dto.transaction.BynExchangeResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
@@ -18,7 +18,7 @@ public interface TransactionService {
 
     Mono<TransferBalanceResponse> transferBalance(TransferBalanceRequest request);
 
-    Mono<BynExchangeResponse> exchangeBalance(TransferBalanceRequest request);
+    Mono<ExchangeBalanceResponse> exchangeBalance(TransferBalanceRequest request);
 
     Mono<TransactionStatementResponse> findAllByPeriodOfDateAndAccountId(TransactionStatementRequest request);
 

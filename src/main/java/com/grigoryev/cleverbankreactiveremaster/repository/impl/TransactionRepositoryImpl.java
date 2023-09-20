@@ -61,7 +61,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         .set(TRANSACTION.BANK_RECIPIENT_ID, transaction.getBankRecipientId())
                         .set(TRANSACTION.ACCOUNT_SENDER_ID, transaction.getAccountSenderId())
                         .set(TRANSACTION.ACCOUNT_RECIPIENT_ID, transaction.getAccountRecipientId())
-                        .set(TRANSACTION.SUM, transaction.getSum())
+                        .set(TRANSACTION.SUM_SENDER, transaction.getSumSender())
+                        .set(TRANSACTION.SUM_RECIPIENT, transaction.getSumRecipient())
                         .returning())
                 .map(r -> r.into(Transaction.class));
     }
@@ -70,7 +71,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     public Flux<TransactionStatement> findAllByPeriodOfDateAndAccountId(LocalDate from, LocalDate to, String id) {
         Account a = ACCOUNT.as("a");
         Account b = ACCOUNT.as("b");
-        return Flux.from(dslContext.select(TRANSACTION.DATE, TRANSACTION.TYPE, USER.LASTNAME, TRANSACTION.SUM)
+        return Flux.from(dslContext.select(TRANSACTION.DATE, TRANSACTION.TYPE, USER.LASTNAME,
+                                TRANSACTION.SUM_SENDER, TRANSACTION.SUM_RECIPIENT)
                         .from(TRANSACTION)
                         .join(a).on(TRANSACTION.ACCOUNT_SENDER_ID.eq(a.ID))
                         .join(b).on(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(b.ID))
@@ -80,7 +82,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 .map(r -> r.into(TransactionStatement.class));
     }
 
-    @Override
+    @Override //todo
     public Mono<BigDecimal> findSumOfSpentFundsByPeriodOfDateAndAccountId(LocalDate from, LocalDate to, String id) {
         return Mono.from(dslContext.select(sum(TRANSACTION.SUM).as("spent"))
                         .from(TRANSACTION)
@@ -93,7 +95,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         : r.getValue("spent", BigDecimal.class));
     }
 
-    @Override
+    @Override //todo
     public Mono<BigDecimal> findSumOfReceivedFundsByPeriodOfDateAndAccountId(LocalDate from, LocalDate to, String id) {
         return Mono.from(dslContext.select(
                         field(select(sum(TRANSACTION.SUM))
@@ -123,7 +125,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             : r.getValue("sum_with_exchange", BigDecimal.class);
                     return r.getValue("curr") == null
                             ? Mono.just(sumWithExchange.add(sumWithoutExchange))
-                            : nbRbCurrencyService.toByn(r.getValue("curr", Currency.class), sumWithExchange)
+                            : nbRbCurrencyService.exchangeSumByCurrency(r.getValue("curr", Currency.class),
+                                    r.getValue("curr", Currency.class), sumWithExchange)
                             .map(byn -> byn.add(sumWithoutExchange));
                 });
     }

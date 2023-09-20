@@ -19,11 +19,31 @@ public class NbRbCurrencyServiceImpl implements NbRbCurrencyService {
     private final TransactionalOperator operator;
 
     @Override
-    public Mono<BigDecimal> toByn(Currency currency, BigDecimal sum) {
-        return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currency.getCode())
-                .map(bynCurrency -> sum.multiply(bynCurrency.getRate())
-                        .divide(BigDecimal.valueOf(bynCurrency.getScale()), 2, RoundingMode.DOWN))
-                .as(operator::transactional);
+    public Mono<BigDecimal> exchangeSumByCurrency(Currency currencySender, Currency currencyRecipient, BigDecimal sum) {
+        if (currencySender.equals(currencyRecipient)) {
+            return Mono.just(sum);
+        } else if (currencyRecipient.equals(Currency.BYN)) {
+            return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())
+                    .map(nbRbCurrency -> sum.multiply(nbRbCurrency.getRate())
+                            .divide(BigDecimal.valueOf(nbRbCurrency.getScale()), 2, RoundingMode.UP)
+                            .setScale(2, RoundingMode.UP))
+                    .as(operator::transactional);
+        } else if (currencySender.equals(Currency.BYN)) {
+            return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencyRecipient.getCode())
+                    .map(nbRbCurrency -> sum.divide(nbRbCurrency.getRate(), 2, RoundingMode.UP)
+                            .multiply(BigDecimal.valueOf(nbRbCurrency.getScale()))
+                            .setScale(2, RoundingMode.UP))
+                    .as(operator::transactional);
+        } else {
+            return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())
+                    .zipWith(nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencyRecipient.getCode()))
+                    .map(tuple -> sum.multiply(tuple.getT1().getRate())
+                            .divide(BigDecimal.valueOf(tuple.getT1().getScale()), 2, RoundingMode.UP)
+                            .divide(tuple.getT2().getRate(), 2, RoundingMode.UP)
+                            .multiply(BigDecimal.valueOf(tuple.getT2().getScale()))
+                            .setScale(2, RoundingMode.UP))
+                    .as(operator::transactional);
+        }
     }
 
 }
