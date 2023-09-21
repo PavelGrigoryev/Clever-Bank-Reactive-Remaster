@@ -31,6 +31,7 @@ ext {
     picocliVersion = '4.7.5'
     mapstructVersion = '1.5.3.Final'
     jooqVersion = '3.18.6'
+    testContainerVersion = '1.19.0'
 }
 
 dependencies {
@@ -50,6 +51,8 @@ dependencies {
 
     runtimeOnly 'org.postgresql:r2dbc-postgresql'
 
+    testImplementation "org.testcontainers:postgresql:${testContainerVersion}"
+    testImplementation "org.testcontainers:r2dbc:${testContainerVersion}"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
 }
