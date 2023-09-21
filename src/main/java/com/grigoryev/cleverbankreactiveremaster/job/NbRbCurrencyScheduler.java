@@ -46,7 +46,7 @@ public final class NbRbCurrencyScheduler {
                             sink.error(new JsonParseException(e.getMessage()));
                         }
                     })
-                    .map(this::getBynCurrencyFromJsonNode)
+                    .map(this::getNbRbCurrencyFromJsonNode)
                     .flatMap(nbRbCurrencyRepository::save)
                     .as(operator::transactional)
                     .log(this.getClass().getName())
@@ -54,7 +54,7 @@ public final class NbRbCurrencyScheduler {
         }
     }
 
-    private NbRbCurrency getBynCurrencyFromJsonNode(JsonNode jsonNode) {
+    private NbRbCurrency getNbRbCurrencyFromJsonNode(JsonNode jsonNode) {
         int currencyId = jsonNode.at("/Cur_ID").asInt();
         String currencyName = jsonNode.at("/Cur_Abbreviation").asText();
         int scale = jsonNode.at("/Cur_Scale").asInt();

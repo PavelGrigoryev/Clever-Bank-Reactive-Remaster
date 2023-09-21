@@ -25,14 +25,12 @@ public class NbRbCurrencyServiceImpl implements NbRbCurrencyService {
         } else if (currencyRecipient.equals(Currency.BYN)) {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())
                     .map(nbRbCurrency -> sum.multiply(nbRbCurrency.getRate())
-                            .divide(BigDecimal.valueOf(nbRbCurrency.getScale()), 2, RoundingMode.UP)
-                            .setScale(2, RoundingMode.UP))
+                            .divide(BigDecimal.valueOf(nbRbCurrency.getScale()), 2, RoundingMode.UP))
                     .as(operator::transactional);
         } else if (currencySender.equals(Currency.BYN)) {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencyRecipient.getCode())
                     .map(nbRbCurrency -> sum.divide(nbRbCurrency.getRate(), 2, RoundingMode.UP)
-                            .multiply(BigDecimal.valueOf(nbRbCurrency.getScale()))
-                            .setScale(2, RoundingMode.UP))
+                            .multiply(BigDecimal.valueOf(nbRbCurrency.getScale())))
                     .as(operator::transactional);
         } else {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())

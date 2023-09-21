@@ -1,9 +1,9 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
-import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementResponse;
@@ -25,7 +25,6 @@ import com.grigoryev.cleverbankreactiveremaster.service.CheckService;
 import com.grigoryev.cleverbankreactiveremaster.service.NbRbCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.service.TransactionService;
 import com.grigoryev.cleverbankreactiveremaster.service.UploadFileService;
-import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -53,29 +52,24 @@ public class TransactionServiceImpl implements TransactionService {
         return accountService.findById(request.accountRecipientId())
                 .doOnNext(this::validateAccountForClosingDate)
                 .doOnNext(accountData -> validateAccountForSufficientBalance(accountData, Type.valueOf(request.type()), request.sum()))
-                .flatMap(accountData -> {
-                    BigDecimal newBalance = Type.valueOf(request.type()) == Type.REPLENISHMENT
-                            ? accountData.getBalance().add(request.sum())
-                            : accountData.getBalance().subtract(request.sum());
-                    return accountService.updateBalance(accountMapper.fromAccountData(accountData), newBalance);
-                })
+                .flatMap(accountData -> accountService.updateBalance(accountMapper.fromAccountData(accountData),
+                        Type.valueOf(request.type()) == Type.REPLENISHMENT
+                                ? accountData.getBalance().add(request.sum())
+                                : accountData.getBalance().subtract(request.sum())))
                 .zipWith(accountService.findById(request.accountSenderId()))
-                .flatMap(tuple -> {
-                    Transaction transaction = transactionMapper.toChangeTransaction(
-                            tuple.getT1().getBank().getId(),
-                            tuple.getT2().getBank().getId(),
-                            request);
-                    return transactionRepository.save(transaction)
-                            .map(savedTransaction -> transactionMapper.toChangeResponse(
-                                    savedTransaction,
-                                    tuple.getT2().getBank().getName(),
-                                    tuple.getT1().getBank().getName(),
-                                    tuple.getT1().getCurrency(),
-                                    Type.valueOf(request.type()) == Type.REPLENISHMENT
-                                            ? tuple.getT1().getBalance().subtract(request.sum())
-                                            : tuple.getT1().getBalance().add(request.sum()),
-                                    tuple.getT1().getBalance()));
-                })
+                .flatMap(tuple -> transactionRepository.save(transactionMapper.toChangeTransaction(
+                                tuple.getT1().getBank().getId(),
+                                tuple.getT2().getBank().getId(),
+                                request))
+                        .map(savedTransaction -> transactionMapper.toChangeResponse(
+                                savedTransaction,
+                                tuple.getT2().getBank().getName(),
+                                tuple.getT1().getBank().getName(),
+                                tuple.getT1().getCurrency(),
+                                Type.valueOf(request.type()) == Type.REPLENISHMENT
+                                        ? tuple.getT1().getBalance().subtract(request.sum())
+                                        : tuple.getT1().getBalance().add(request.sum()),
+                                tuple.getT1().getBalance())))
                 .doOnNext(response -> uploadFileService.uploadCheck(checkService.createChangeBalanceCheck(response)))
                 .as(operator::transactional);
     }
@@ -92,25 +86,22 @@ public class TransactionServiceImpl implements TransactionService {
                                 .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
                         .zipWith(accountService.updateBalance(accountMapper
                                 .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(request.sum()))))
-                .flatMap(tuple -> {
-                    Transaction transaction = transactionMapper.toTransferTransaction(
-                            Type.TRANSFER,
-                            tuple.getT1().getBank().getId(),
-                            tuple.getT2().getBank().getId(),
-                            tuple.getT1().getId(),
-                            tuple.getT2().getId(),
-                            request.sum());
-                    return transactionRepository.save(transaction)
-                            .map(savedTransaction -> transactionMapper.toTransferResponse(
-                                    savedTransaction,
-                                    tuple.getT1().getCurrency(),
-                                    tuple.getT1().getBank().getName(),
-                                    tuple.getT2().getBank().getName(),
-                                    tuple.getT1().getBalance().add(request.sum()),
-                                    tuple.getT1().getBalance(),
-                                    tuple.getT2().getBalance().subtract(request.sum()),
-                                    tuple.getT2().getBalance()));
-                })
+                .flatMap(tuple -> transactionRepository.save(transactionMapper.toTransferTransaction(
+                                Type.TRANSFER,
+                                tuple.getT1().getBank().getId(),
+                                tuple.getT2().getBank().getId(),
+                                tuple.getT1().getId(),
+                                tuple.getT2().getId(),
+                                request.sum()))
+                        .map(savedTransaction -> transactionMapper.toTransferResponse(
+                                savedTransaction,
+                                tuple.getT1().getCurrency(),
+                                tuple.getT1().getBank().getName(),
+                                tuple.getT2().getBank().getName(),
+                                tuple.getT1().getBalance().add(request.sum()),
+                                tuple.getT1().getBalance(),
+                                tuple.getT2().getBalance().subtract(request.sum()),
+                                tuple.getT2().getBalance())))
                 .doOnNext(response -> uploadFileService.uploadCheck(checkService.createTransferBalanceCheck(response)))
                 .as(operator::transactional);
     }
@@ -130,28 +121,24 @@ public class TransactionServiceImpl implements TransactionService {
                                         .fromAccountData(tuple.getT1()), tuple.getT1().getBalance().subtract(request.sum()))
                                 .zipWith(accountService.updateBalance(accountMapper
                                         .fromAccountData(tuple.getT2()), tuple.getT2().getBalance().add(exchangedSum.get())))))
-                .flatMap(tuple -> {
-                    Transaction transaction = transactionMapper.toExchangeTransaction(
-                            Type.EXCHANGE,
-                            tuple.getT1().getBank().getId(),
-                            tuple.getT2().getBank().getId(),
-                            tuple.getT1().getId(),
-                            tuple.getT2().getId(),
-                            request.sum(),
-                            exchangedSum.get());
-                    return transactionRepository.save(transaction)
-                            .map(savedTransaction -> transactionMapper.toExchangeResponse(
-                                    savedTransaction,
-                                    tuple.getT1().getCurrency(),
-                                    tuple.getT2().getCurrency(),
-                                    tuple.getT1().getBank().getName(),
-                                    tuple.getT2().getBank().getName(),
-                                    tuple.getT1().getBalance().add(request.sum()),
-                                    tuple.getT1().getBalance(),
-                                    tuple.getT2().getBalance().subtract(exchangedSum.get()),
-                                    tuple.getT2().getBalance()
-                            ));
-                })
+                .flatMap(tuple -> transactionRepository.save(transactionMapper.toExchangeTransaction(
+                                Type.EXCHANGE,
+                                tuple.getT1().getBank().getId(),
+                                tuple.getT2().getBank().getId(),
+                                tuple.getT1().getId(),
+                                tuple.getT2().getId(),
+                                request.sum(),
+                                exchangedSum.get()))
+                        .map(savedTransaction -> transactionMapper.toExchangeResponse(
+                                savedTransaction,
+                                tuple.getT1().getCurrency(),
+                                tuple.getT2().getCurrency(),
+                                tuple.getT1().getBank().getName(),
+                                tuple.getT2().getBank().getName(),
+                                tuple.getT1().getBalance().add(request.sum()),
+                                tuple.getT1().getBalance(),
+                                tuple.getT2().getBalance().subtract(exchangedSum.get()),
+                                tuple.getT2().getBalance())))
                 .doOnNext(response -> uploadFileService.uploadCheck(checkService.createExchangeBalanceCheck(response)))
                 .as(operator::transactional);
     }
@@ -224,7 +211,7 @@ public class TransactionServiceImpl implements TransactionService {
     private void validateAccountForSufficientBalance(AccountData accountData, Type type, BigDecimal sum) {
         BigDecimal oldBalance = accountData.getBalance();
         if (type != Type.REPLENISHMENT && oldBalance.compareTo(sum) < 0) {
-            throw new InsufficientFundsException("Insufficient funds in the account! You want to withdrawal/transfer "
+            throw new InsufficientFundsException("Insufficient funds in the account! You want to change "
                                                  + sum + ", but you have only " + oldBalance);
         }
     }

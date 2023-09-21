@@ -2,6 +2,7 @@ package com.grigoryev.cleverbankreactiveremaster.dto.account;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
@@ -13,6 +14,7 @@ public record AccountRequest(
         String currency,
 
         @Positive
+        @Digits(integer = 10, fraction = 2)
         BigDecimal balance,
 
         @Positive
