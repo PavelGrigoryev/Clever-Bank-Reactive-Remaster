@@ -1,10 +1,8 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatement;
-import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
-import com.grigoryev.cleverbankreactiveremaster.service.NbRbCurrencyService;
 import com.grigoryev.cleverbankreactiveremaster.tables.Account;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Transaction;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,6 @@ import java.time.LocalDate;
 import static com.grigoryev.cleverbankreactiveremaster.Tables.ACCOUNT;
 import static com.grigoryev.cleverbankreactiveremaster.Tables.TRANSACTION;
 import static com.grigoryev.cleverbankreactiveremaster.Tables.USER;
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.select;
 import static org.jooq.impl.DSL.sum;
 
 @Repository
@@ -28,7 +24,6 @@ import static org.jooq.impl.DSL.sum;
 public class TransactionRepositoryImpl implements TransactionRepository {
 
     private final DSLContext dslContext;
-    private final NbRbCurrencyService nbRbCurrencyService;
 
     @Override
     public Mono<Transaction> findById(Long id) {
@@ -82,9 +77,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 .map(r -> r.into(TransactionStatement.class));
     }
 
-    @Override //todo
+    @Override
     public Mono<BigDecimal> findSumOfSpentFundsByPeriodOfDateAndAccountId(LocalDate from, LocalDate to, String id) {
-        return Mono.from(dslContext.select(sum(TRANSACTION.SUM).as("spent"))
+        return Mono.from(dslContext.select(sum(TRANSACTION.SUM_SENDER).as("spent"))
                         .from(TRANSACTION)
                         .where(TRANSACTION.DATE.between(from).and(to))
                         .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id)
@@ -95,40 +90,15 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         : r.getValue("spent", BigDecimal.class));
     }
 
-    @Override //todo
+    @Override
     public Mono<BigDecimal> findSumOfReceivedFundsByPeriodOfDateAndAccountId(LocalDate from, LocalDate to, String id) {
-        return Mono.from(dslContext.select(
-                        field(select(sum(TRANSACTION.SUM))
-                                .from(TRANSACTION)
-                                .where(TRANSACTION.DATE.between(from).and(to))
-                                .and(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id)
-                                        .and(TRANSACTION.TYPE.notIn(Type.WITHDRAWAL.toString(), Type.EXCHANGE.toString()))))
-                                .as("sum_without_exchange"),
-                        field(select(sum(TRANSACTION.SUM))
-                                .from(TRANSACTION)
-                                .where(TRANSACTION.DATE.between(from).and(to))
-                                .and(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.EXCHANGE.toString()))))
-                                .as("sum_with_exchange"),
-                        field(select(ACCOUNT.CURRENCY)
-                                .from(ACCOUNT)
-                                .join(TRANSACTION).on(ACCOUNT.ID.eq(TRANSACTION.ACCOUNT_SENDER_ID))
-                                .where(TRANSACTION.DATE.between(from).and(to))
-                                .and(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.eq(Type.EXCHANGE.toString())))
-                                .limit(1))
-                                .as("curr")))
-                .flatMap(r -> {
-                    BigDecimal sumWithoutExchange = r.getValue("sum_without_exchange") == null
-                            ? BigDecimal.ZERO
-                            : r.getValue("sum_without_exchange", BigDecimal.class);
-                    BigDecimal sumWithExchange = r.getValue("sum_with_exchange") == null
-                            ? BigDecimal.ZERO
-                            : r.getValue("sum_with_exchange", BigDecimal.class);
-                    return r.getValue("curr") == null
-                            ? Mono.just(sumWithExchange.add(sumWithoutExchange))
-                            : nbRbCurrencyService.exchangeSumByCurrency(r.getValue("curr", Currency.class),
-                                    r.getValue("curr", Currency.class), sumWithExchange)
-                            .map(byn -> byn.add(sumWithoutExchange));
-                });
+        return Mono.from(dslContext.select(sum(TRANSACTION.SUM_RECIPIENT).as("received"))
+                        .from(TRANSACTION)
+                        .where(TRANSACTION.DATE.between(from).and(to))
+                        .and(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id).and(TRANSACTION.TYPE.notEqual(Type.WITHDRAWAL.toString()))))
+                .map(r -> r.getValue("received") == null
+                        ? BigDecimal.ZERO
+                        : r.getValue("received", BigDecimal.class));
     }
 
 }
