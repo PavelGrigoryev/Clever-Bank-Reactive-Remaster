@@ -3,7 +3,7 @@ GET http://localhost:8080/banks/1
 Accept: application/json
 
 ###найти все банки
-GET http://localhost:8080/banks
+GET http://localhost:8080/banks?offset=3&limit=3
 Accept: application/json
 
 ###сохранить банк

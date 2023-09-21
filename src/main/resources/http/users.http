@@ -3,7 +3,7 @@ GET http://localhost:8080/users/25
 Accept: application/json
 
 ###найти всех пользователей
-GET http://localhost:8080/users
+GET http://localhost:8080/users?offset=3&limit=5
 Accept: application/json
 
 ###сохранить пользователя

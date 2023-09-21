@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.service;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
@@ -26,8 +27,8 @@ public interface TransactionService {
 
     Mono<TransactionResponse> findById(Long id);
 
-    Flux<TransactionResponse> findAllBySendersAccountId(String id);
+    Flux<TransactionResponse> findAllBySendersAccountId(String id, PageRequest request);
 
-    Flux<TransactionResponse> findAllByRecipientAccountId(String id);
+    Flux<TransactionResponse> findAllByRecipientAccountId(String id, PageRequest request);
 
 }

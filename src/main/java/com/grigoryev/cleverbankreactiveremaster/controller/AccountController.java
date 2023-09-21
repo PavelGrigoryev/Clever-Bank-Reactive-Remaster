@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountResponse;
 import com.grigoryev.cleverbankreactiveremaster.service.AccountService;
@@ -35,8 +36,8 @@ public class AccountController {
     }
 
     @GetMapping
-    public Flux<AccountResponse> findAllResponses() {
-        return accountService.findAllResponses();
+    public Flux<AccountResponse> findAllResponses(@Valid PageRequest request) {
+        return accountService.findAllResponses(request);
     }
 
     @PostMapping

@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.repository.UserRepository;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Flux<User> findAll() {
-        return Flux.from(dslContext.selectFrom(USER))
+    public Flux<User> findAll(PageRequest request) {
+        return Flux.from(dslContext.selectFrom(USER)
+                        .offset(request.offset())
+                        .limit(request.limit()))
                 .map(r -> r.into(User.class));
     }
 

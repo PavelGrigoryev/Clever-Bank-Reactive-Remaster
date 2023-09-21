@@ -1,9 +1,10 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
-import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ExchangeBalanceResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatementResponse;
@@ -70,13 +71,13 @@ public class TransactionController {
     }
 
     @GetMapping("/senders/{id}")
-    public Flux<TransactionResponse> findAllBySendersAccountId(@PathVariable String id) {
-        return transactionService.findAllBySendersAccountId(id);
+    public Flux<TransactionResponse> findAllBySendersAccountId(@PathVariable String id, @Valid PageRequest request) {
+        return transactionService.findAllBySendersAccountId(id, request);
     }
 
     @GetMapping("/recipients/{id}")
-    public Flux<TransactionResponse> findAllByRecipientAccountId(@PathVariable String id) {
-        return transactionService.findAllByRecipientAccountId(id);
+    public Flux<TransactionResponse> findAllByRecipientAccountId(@PathVariable String id, @Valid PageRequest request) {
+        return transactionService.findAllByRecipientAccountId(id, request);
     }
 
 }

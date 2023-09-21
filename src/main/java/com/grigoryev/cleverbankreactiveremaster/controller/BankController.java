@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankResponse;
 import com.grigoryev.cleverbankreactiveremaster.service.BankService;
@@ -36,8 +37,8 @@ public class BankController {
     }
 
     @GetMapping
-    public Flux<BankResponse> findAll() {
-        return bankService.findAll();
+    public Flux<BankResponse> findAll(@Valid PageRequest request) {
+        return bankService.findAll(request);
     }
 
     @PostMapping

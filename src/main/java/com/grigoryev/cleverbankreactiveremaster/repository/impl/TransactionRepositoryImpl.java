@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransactionStatement;
 import com.grigoryev.cleverbankreactiveremaster.model.Type;
 import com.grigoryev.cleverbankreactiveremaster.repository.TransactionRepository;
@@ -33,16 +34,20 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     }
 
     @Override
-    public Flux<Transaction> findAllBySendersAccountId(String id) {
+    public Flux<Transaction> findAllBySendersAccountId(String id, PageRequest request) {
         return Flux.from(dslContext.selectFrom(TRANSACTION)
-                        .where(TRANSACTION.ACCOUNT_SENDER_ID.eq(id)))
+                        .where(TRANSACTION.ACCOUNT_SENDER_ID.eq(id))
+                        .offset(request.offset())
+                        .limit(request.limit()))
                 .map(r -> r.into(Transaction.class));
     }
 
     @Override
-    public Flux<Transaction> findAllByRecipientAccountId(String id) {
+    public Flux<Transaction> findAllByRecipientAccountId(String id, PageRequest request) {
         return Flux.from(dslContext.selectFrom(TRANSACTION)
-                        .where(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id)))
+                        .where(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id))
+                        .offset(request.offset())
+                        .limit(request.limit()))
                 .map(r -> r.into(Transaction.class));
     }
 

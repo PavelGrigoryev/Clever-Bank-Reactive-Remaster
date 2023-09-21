@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.AmountStatementResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.transaction.ChangeBalanceResponse;
@@ -190,14 +191,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Flux<TransactionResponse> findAllBySendersAccountId(String id) {
-        return transactionRepository.findAllBySendersAccountId(id)
+    public Flux<TransactionResponse> findAllBySendersAccountId(String id, PageRequest request) {
+        return transactionRepository.findAllBySendersAccountId(id, request)
                 .map(transactionMapper::toResponse);
     }
 
     @Override
-    public Flux<TransactionResponse> findAllByRecipientAccountId(String id) {
-        return transactionRepository.findAllByRecipientAccountId(id)
+    public Flux<TransactionResponse> findAllByRecipientAccountId(String id, PageRequest request) {
+        return transactionRepository.findAllByRecipientAccountId(id, request)
                 .map(transactionMapper::toResponse);
     }
 

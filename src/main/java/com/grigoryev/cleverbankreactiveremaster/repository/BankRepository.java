@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -8,7 +9,7 @@ public interface BankRepository {
 
     Mono<Bank> findById(Long id);
 
-    Flux<Bank> findAll();
+    Flux<Bank> findAll(PageRequest request);
 
     Mono<Bank> save(Bank bank);
 

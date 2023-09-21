@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountResponse;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
@@ -18,7 +19,7 @@ public interface AccountService {
 
     Flux<Account> findAll();
 
-    Flux<AccountResponse> findAllResponses();
+    Flux<AccountResponse> findAllResponses(PageRequest request);
 
     Mono<AccountResponse> save(AccountRequest request);
 

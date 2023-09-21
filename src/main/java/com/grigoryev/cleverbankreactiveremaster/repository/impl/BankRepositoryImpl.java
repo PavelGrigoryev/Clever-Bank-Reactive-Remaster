@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.repository.BankRepository;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,10 @@ public class BankRepositoryImpl implements BankRepository {
     }
 
     @Override
-    public Flux<Bank> findAll() {
-        return Flux.from(dslContext.selectFrom(BANK))
+    public Flux<Bank> findAll(PageRequest request) {
+        return Flux.from(dslContext.selectFrom(BANK)
+                        .offset(request.offset())
+                        .limit(request.limit()))
                 .map(r -> r.into(Bank.class));
     }
 

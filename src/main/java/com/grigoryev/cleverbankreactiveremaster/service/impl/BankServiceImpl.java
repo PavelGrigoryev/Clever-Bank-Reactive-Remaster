@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankResponse;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.UniquePhoneNumberException;
@@ -36,8 +37,8 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public Flux<BankResponse> findAll() {
-        return bankRepository.findAll()
+    public Flux<BankResponse> findAll(PageRequest request) {
+        return bankRepository.findAll(request)
                 .map(bankMapper::toResponse);
     }
 

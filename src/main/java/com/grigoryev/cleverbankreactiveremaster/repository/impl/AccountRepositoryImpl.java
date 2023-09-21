@@ -1,13 +1,14 @@
 package com.grigoryev.cleverbankreactiveremaster.repository.impl;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
 import com.grigoryev.cleverbankreactiveremaster.model.Currency;
 import com.grigoryev.cleverbankreactiveremaster.repository.AccountRepository;
-import com.grigoryev.cleverbankreactiveremaster.util.RandomStringGenerator;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.User;
 import com.grigoryev.cleverbankreactiveremaster.tables.records.AccountRecord;
+import com.grigoryev.cleverbankreactiveremaster.util.RandomStringGenerator;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -41,11 +42,13 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Flux<AccountData> findAllDatas() {
+    public Flux<AccountData> findAllDatas(PageRequest request) {
         return Flux.from(dslContext.select()
                         .from(ACCOUNT)
                         .join(BANK).on(BANK.ID.eq(ACCOUNT.BANK_ID))
-                        .join(USER).on(USER.ID.eq(ACCOUNT.USER_ID)))
+                        .join(USER).on(USER.ID.eq(ACCOUNT.USER_ID))
+                        .offset(request.offset())
+                        .limit(request.limit()))
                 .map(this::getAccountWithBankAndUser);
     }
 

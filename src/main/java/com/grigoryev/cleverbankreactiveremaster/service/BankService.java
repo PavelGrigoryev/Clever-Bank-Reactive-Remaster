@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankResponse;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Bank;
@@ -13,7 +14,7 @@ public interface BankService {
 
     Mono<BankResponse> findByIdResponse(Long id);
 
-    Flux<BankResponse> findAll();
+    Flux<BankResponse> findAll(PageRequest request);
 
     Mono<BankResponse> save(BankRequest request);
 

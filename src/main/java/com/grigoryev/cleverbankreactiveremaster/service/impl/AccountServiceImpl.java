@@ -1,6 +1,7 @@
 package com.grigoryev.cleverbankreactiveremaster.service.impl;
 
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountResponse;
 import com.grigoryev.cleverbankreactiveremaster.exception.notfound.AccountNotFoundException;
@@ -48,8 +49,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Flux<AccountResponse> findAllResponses() {
-        return accountRepository.findAllDatas()
+    public Flux<AccountResponse> findAllResponses(PageRequest request) {
+        return accountRepository.findAllDatas(request)
                 .map(accountMapper::toResponse);
     }
 

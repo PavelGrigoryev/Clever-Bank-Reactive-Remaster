@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.repository;
 
+import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.model.AccountData;
 import com.grigoryev.cleverbankreactiveremaster.tables.pojos.Account;
 import reactor.core.publisher.Flux;
@@ -11,7 +12,7 @@ public interface AccountRepository {
 
     Flux<Account> findAll();
 
-    Flux<AccountData> findAllDatas();
+    Flux<AccountData> findAllDatas(PageRequest request);
 
     Mono<AccountData> save(Account account);
 
