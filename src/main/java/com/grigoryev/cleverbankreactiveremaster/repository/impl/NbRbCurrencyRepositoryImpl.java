@@ -7,9 +7,8 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
-
 import static com.grigoryev.cleverbankreactiveremaster.Tables.NB_RB_CURRENCY;
+import static org.jooq.impl.DSL.max;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,7 +20,9 @@ public class NbRbCurrencyRepositoryImpl implements NbRbCurrencyRepository {
     public Mono<NbRbCurrency> findByCurrencyIdForLocalDateNow(Integer currencyId) {
         return Mono.from(dslContext.select()
                         .from(NB_RB_CURRENCY)
-                        .where(NB_RB_CURRENCY.CURRENCY_ID.eq(currencyId).and(NB_RB_CURRENCY.UPDATE_DATE.eq(LocalDate.now())))
+                        .where(NB_RB_CURRENCY.CURRENCY_ID.eq(currencyId).and(NB_RB_CURRENCY.UPDATE_DATE.eq(
+                                dslContext.select(max(NB_RB_CURRENCY.UPDATE_DATE))
+                                        .from(NB_RB_CURRENCY))))
                         .limit(1))
                 .map(r -> r.into(NbRbCurrency.class));
     }

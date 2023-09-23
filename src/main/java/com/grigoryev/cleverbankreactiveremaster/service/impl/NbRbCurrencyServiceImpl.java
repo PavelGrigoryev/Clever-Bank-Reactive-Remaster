@@ -5,7 +5,6 @@ import com.grigoryev.cleverbankreactiveremaster.repository.NbRbCurrencyRepositor
 import com.grigoryev.cleverbankreactiveremaster.service.NbRbCurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -16,7 +15,6 @@ import java.math.RoundingMode;
 public class NbRbCurrencyServiceImpl implements NbRbCurrencyService {
 
     private final NbRbCurrencyRepository nbRbCurrencyRepository;
-    private final TransactionalOperator operator;
 
     @Override
     public Mono<BigDecimal> exchangeSumByCurrency(Currency currencySender, Currency currencyRecipient, BigDecimal sum) {
@@ -25,13 +23,11 @@ public class NbRbCurrencyServiceImpl implements NbRbCurrencyService {
         } else if (currencyRecipient.equals(Currency.BYN)) {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())
                     .map(nbRbCurrency -> sum.multiply(nbRbCurrency.getRate())
-                            .divide(BigDecimal.valueOf(nbRbCurrency.getScale()), 2, RoundingMode.UP))
-                    .as(operator::transactional);
+                            .divide(BigDecimal.valueOf(nbRbCurrency.getScale()), 2, RoundingMode.UP));
         } else if (currencySender.equals(Currency.BYN)) {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencyRecipient.getCode())
                     .map(nbRbCurrency -> sum.divide(nbRbCurrency.getRate(), 2, RoundingMode.UP)
-                            .multiply(BigDecimal.valueOf(nbRbCurrency.getScale())))
-                    .as(operator::transactional);
+                            .multiply(BigDecimal.valueOf(nbRbCurrency.getScale())));
         } else {
             return nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencySender.getCode())
                     .zipWith(nbRbCurrencyRepository.findByCurrencyIdForLocalDateNow(currencyRecipient.getCode()))
@@ -39,8 +35,7 @@ public class NbRbCurrencyServiceImpl implements NbRbCurrencyService {
                             .divide(BigDecimal.valueOf(tuple.getT1().getScale()), 2, RoundingMode.UP)
                             .divide(tuple.getT2().getRate(), 2, RoundingMode.UP)
                             .multiply(BigDecimal.valueOf(tuple.getT2().getScale()))
-                            .setScale(2, RoundingMode.UP))
-                    .as(operator::transactional);
+                            .setScale(2, RoundingMode.UP));
         }
     }
 
