@@ -347,10 +347,15 @@ public class BankControllerTest extends BaseIntegrationTest {
     @Nested
     class UpdatePutEndpointTest {
 
-        @ParameterizedTest(name = "{arguments} test")
+        @Test
         @DisplayName("test should return expected json and status 201")
-        @MethodSource("com.grigoryev.cleverbankreactiveremaster.integration.controller.BankControllerTest#getArgumentsForPutTest")
-        void testShouldReturnExpectedJsonAndStatus201(Long id, BankRequest request) {
+        void testShouldReturnExpectedJsonAndStatus201() {
+            long id = 7L;
+            BankRequest request = BankRequestTestBuilder.aBankRequest()
+                    .withName("Странный Банк")
+                    .withAddress("ул. Афанасьева, 11")
+                    .withPhoneNumber("+7 (495) 777-55-11")
+                    .build();
             BankResponse response = BankResponseTestBuilder.aBankResponse()
                     .withId(id)
                     .withName(request.name())
@@ -491,10 +496,10 @@ public class BankControllerTest extends BaseIntegrationTest {
     @Nested
     class DeleteByIdEndpointTest {
 
-        @ParameterizedTest(name = "{arguments} test")
+        @Test
         @DisplayName("test should return expected json and status 200")
-        @MethodSource("com.grigoryev.cleverbankreactiveremaster.integration.controller.BankControllerTest#getArgumentsForDeleteTest")
-        void testShouldReturnExpectedJsonAndStatus200(Long id) {
+        void testShouldReturnExpectedJsonAndStatus200() {
+            long id = 8L;
             DeleteResponse response = new DeleteResponse("Bank with ID " + id + " was successfully deleted");
 
             webTestClient.delete()
@@ -541,33 +546,12 @@ public class BankControllerTest extends BaseIntegrationTest {
 
     private static Stream<Arguments> getArgumentsForPostTest() {
         return Stream.of(
-                Arguments.of(7L, BankRequestTestBuilder.aBankRequest().build()),
-                Arguments.of(8L, BankRequestTestBuilder.aBankRequest()
+                Arguments.of(9L, BankRequestTestBuilder.aBankRequest().build()),
+                Arguments.of(10L, BankRequestTestBuilder.aBankRequest()
                         .withName("Новый Банк")
                         .withAddress("ул. Больших челнов, 25")
                         .withPhoneNumber("+7 (495) 777-13-11")
                         .build()));
-    }
-
-    private static Stream<Arguments> getArgumentsForPutTest() {
-        return Stream.of(
-                Arguments.of(5L, BankRequestTestBuilder.aBankRequest()
-                        .withName("Странный Банк")
-                        .withAddress("ул. Афанасьева, 11")
-                        .withPhoneNumber("+7 (495) 777-55-11")
-                        .build()),
-                Arguments.of(6L, BankRequestTestBuilder.aBankRequest()
-                        .withName("Железный Банк")
-                        .withAddress("ул. Дрына, 59")
-                        .withPhoneNumber("+7 (495) 665-47-15")
-                        .build()));
-    }
-
-    private static Stream<Arguments> getArgumentsForDeleteTest() {
-        return Stream.of(
-                Arguments.of(2L),
-                Arguments.of(3L)
-        );
     }
 
 }

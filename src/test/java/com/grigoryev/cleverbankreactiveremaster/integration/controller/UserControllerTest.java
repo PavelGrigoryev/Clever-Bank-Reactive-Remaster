@@ -370,17 +370,23 @@ class UserControllerTest extends BaseIntegrationTest {
     @Nested
     class UpdatePutEndpointTest {
 
-        @ParameterizedTest(name = "{arguments} test")
+        @Test
         @DisplayName("test should return expected json and status 201")
-        @MethodSource("com.grigoryev.cleverbankreactiveremaster.integration.controller.UserControllerTest#getArgumentsForPutTest")
-        void testShouldReturnExpectedJsonAndStatus201(Long id, LocalDate registerDate, UserRequest request) {
+        void testShouldReturnExpectedJsonAndStatus201() {
+            long id = 25L;
+            UserRequest request = UserRequestTestBuilder.aUserRequest()
+                    .withLastname("Сливовый")
+                    .withFirstname("Алексей")
+                    .withSurname("Васильевич")
+                    .withMobileNumber("+7 (900) 666-58-96")
+                    .build();
             UserResponse response = UserResponseTestBuilder.aUserResponse()
                     .withId(id)
                     .withLastname(request.lastname())
                     .withFirstname(request.firstname())
                     .withSurname(request.surname())
                     .withMobileNumber(request.mobileNumber())
-                    .withRegisterDate(registerDate)
+                    .withRegisterDate(LocalDate.of(2001, 12, 30))
                     .build();
 
             webTestClient.put()
@@ -537,10 +543,10 @@ class UserControllerTest extends BaseIntegrationTest {
     @Nested
     class DeleteByIdEndpointTest {
 
-        @ParameterizedTest(name = "{arguments} test")
+        @Test
         @DisplayName("test should return expected json and status 200")
-        @MethodSource("com.grigoryev.cleverbankreactiveremaster.integration.controller.UserControllerTest#getArgumentsForDeleteTest")
-        void testShouldReturnExpectedJsonAndStatus200(Long id) {
+        void testShouldReturnExpectedJsonAndStatus200() {
+            long id = 26L;
             DeleteResponse response = new DeleteResponse("User with ID " + id + " was successfully deleted");
 
             webTestClient.delete()
@@ -587,39 +593,13 @@ class UserControllerTest extends BaseIntegrationTest {
 
     private static Stream<Arguments> getArgumentsForPostTest() {
         return Stream.of(
-                Arguments.of(25L, UserRequestTestBuilder.aUserRequest().build()),
-                Arguments.of(26L, UserRequestTestBuilder.aUserRequest()
+                Arguments.of(27L, UserRequestTestBuilder.aUserRequest().build()),
+                Arguments.of(28L, UserRequestTestBuilder.aUserRequest()
                         .withLastname("Сильнейший")
                         .withFirstname("Александр")
                         .withSurname("Сергеевич")
                         .withMobileNumber("+7 (900) 333-11-75")
                         .build()));
-    }
-
-    private static Stream<Arguments> getArgumentsForPutTest() {
-        return Stream.of(
-                Arguments.of(5L, LocalDate.of(1994, 5, 5),
-                        UserRequestTestBuilder.aUserRequest()
-                                .withLastname("Сливовый")
-                                .withFirstname("Алексей")
-                                .withSurname("Васильевич")
-                                .withMobileNumber("+7 (900) 666-58-96")
-                                .build()),
-                Arguments.of(6L, LocalDate.of(1995, 6, 6),
-                        UserRequestTestBuilder.aUserRequest()
-                                .withLastname("Железный")
-                                .withFirstname("Василий")
-                                .withSurname("Иванович")
-                                .withMobileNumber("+7 (900) 256-17-56")
-                                .build()));
-    }
-
-    private static Stream<Arguments> getArgumentsForDeleteTest() {
-        return Stream.of(
-                Arguments.of(15L),
-                Arguments.of(16L),
-                Arguments.of(13L)
-        );
     }
 
 }

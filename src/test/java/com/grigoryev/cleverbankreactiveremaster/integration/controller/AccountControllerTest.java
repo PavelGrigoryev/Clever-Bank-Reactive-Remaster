@@ -408,7 +408,7 @@ public class AccountControllerTest extends BaseIntegrationTest {
         @Test
         @DisplayName("test should return expected json and status 201")
         void testShouldReturnExpectedJsonAndStatus201() {
-            String id = "SW5C MJDI ZZN0 CTUW 5MEO 8DRA GKU2";
+            String id = "TYUB HY67 X66Q YMTT BARX E6AT ENKB";
 
             webTestClient.put()
                     .uri(ACCOUNTS + "/" + id)
@@ -444,7 +444,7 @@ public class AccountControllerTest extends BaseIntegrationTest {
         @Test
         @DisplayName("test should return expected json and status 200")
         void testShouldReturnExpectedJsonAndStatus200() {
-            String id = "NFXS FJGQ 5FL6 XF1S D88V 9W1Q G19O";
+            String id = "ZUS2 5F6H X66Q YMTT BARX E6AT ENKB";
             DeleteResponse response = new DeleteResponse("Account with ID " + id + " was successfully deleted");
 
             webTestClient.delete()
