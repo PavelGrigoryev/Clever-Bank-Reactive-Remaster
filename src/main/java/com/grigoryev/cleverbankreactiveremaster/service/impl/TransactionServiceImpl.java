@@ -13,7 +13,6 @@ import com.grigoryev.cleverbankreactiveremaster.dto.transaction.TransferBalanceR
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.AccountClosedException;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.BadCurrencyException;
 import com.grigoryev.cleverbankreactiveremaster.exception.badrequest.InsufficientFundsException;
-import com.grigoryev.cleverbankreactiveremaster.exception.internalservererror.TransactionException;
 import com.grigoryev.cleverbankreactiveremaster.exception.notfound.TransactionNotFoundException;
 import com.grigoryev.cleverbankreactiveremaster.mapper.AccountMapper;
 import com.grigoryev.cleverbankreactiveremaster.mapper.TransactionMapper;
@@ -149,7 +148,7 @@ public class TransactionServiceImpl implements TransactionService {
         return accountService.findById(request.accountId())
                 .flatMap(accountData -> transactionRepository.findAllByPeriodOfDateAndAccountId(
                                 request.from(), request.to(), accountData.getId())
-                        .switchIfEmpty(Mono.error(new TransactionException(
+                        .switchIfEmpty(Mono.error(new TransactionNotFoundException(
                                 "It is not possible to create a transaction statement because" +
                                 " you do not have any transactions for this period of time : from "
                                 + request.from() + " to " + request.to())))

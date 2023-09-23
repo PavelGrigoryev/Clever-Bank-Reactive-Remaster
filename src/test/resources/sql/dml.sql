@@ -92,3 +92,14 @@ INSERT INTO nb_rb_currency (currency_id, currency, scale, rate, update_date)
 VALUES (456, 'RUB', 100, 3.3817, '2023-09-17'),
        (431, 'USD', 1, 3.2605, '2023-09-17'),
        (451, 'EUR', 1, 3.4773, '2023-09-17');
+
+INSERT INTO transaction (date, time, type, bank_sender_id, bank_recipient_id, account_sender_id, account_recipient_id,
+                         sum_sender, sum_recipient)
+VALUES ('2023-09-23', '13:34:02', 'REPLENISHMENT', 3, 5, 'FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62',
+        '55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9', 255, 255),
+       ('2023-09-23', '15:32:32', 'EXCHANGE', 2, 5, 'QR2Q PA57 LB3E LHT3 HCZ2 V4MV XL6M',
+        '19CM 9B6S FFF7 0N1Y M8UY AXCE RMJV', 3000, 29.25),
+       ('2023-09-23', '23:15:42', 'WITHDRAWAL', 3, 5, 'FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62',
+        '55JN NKDA XKNN Z0QV 5LGL FXF7 XJT9', 255, 255),
+       ('2023-09-23', '23:15:49', 'TRANSFER', 3, 5, 'FUCB OY0M VHZ4 U8Y6 11DQ RQ3Y 5T62',
+        'ZMEJ L8W1 YNCU JRK6 XOYG Z4R1 IDIJ', 20, 20);
