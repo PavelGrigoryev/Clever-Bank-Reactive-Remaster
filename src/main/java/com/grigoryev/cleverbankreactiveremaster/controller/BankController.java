@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
+import com.grigoryev.cleverbankreactiveremaster.aop.InputLoggable;
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
@@ -23,40 +24,47 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Validated
+@InputLoggable
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/banks")
 public class BankController {
 
     private final BankService bankService;
+    private final String className = this.getClass().getName();
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<BankResponse>> findByIdResponse(@PathVariable @Positive Long id) {
         return bankService.findByIdResponse(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
     @GetMapping
     public Flux<BankResponse> findAll(@Valid PageRequest request) {
-        return bankService.findAll(request);
+        return bankService.findAll(request)
+                .log(className);
     }
 
     @PostMapping
     public Mono<ResponseEntity<BankResponse>> save(@RequestBody @Valid BankRequest request) {
         return bankService.save(request)
-                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse));
+                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse))
+                .log(className);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<BankResponse>> update(@PathVariable @Positive Long id, @RequestBody @Valid BankRequest request) {
         return bankService.update(id, request)
-                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse));
+                .map(bankResponse -> ResponseEntity.status(HttpStatus.CREATED).body(bankResponse))
+                .log(className);
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<DeleteResponse>> delete(@PathVariable @Positive Long id) {
         return bankService.delete(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
 }

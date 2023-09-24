@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
+import com.grigoryev.cleverbankreactiveremaster.aop.InputLoggable;
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.user.UserRequest;
@@ -23,40 +24,47 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Validated
+@InputLoggable
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
+    private final String className = this.getClass().getName();
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<UserResponse>> findByIdResponse(@PathVariable @Positive Long id) {
         return userService.findByIdResponse(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
     @GetMapping
     public Flux<UserResponse> findAll(@Valid PageRequest request) {
-        return userService.findAll(request);
+        return userService.findAll(request)
+                .log(className);
     }
 
     @PostMapping
     public Mono<ResponseEntity<UserResponse>> save(@RequestBody @Valid UserRequest request) {
         return userService.save(request)
-                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse));
+                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse))
+                .log(className);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<UserResponse>> update(@PathVariable @Positive Long id, @RequestBody @Valid UserRequest request) {
         return userService.update(id, request)
-                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse));
+                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse))
+                .log(className);
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<DeleteResponse>> delete(@PathVariable @Positive Long id) {
         return userService.delete(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
 }

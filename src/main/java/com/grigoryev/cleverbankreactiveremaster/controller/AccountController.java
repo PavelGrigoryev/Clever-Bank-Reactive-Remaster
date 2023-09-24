@@ -1,5 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
+import com.grigoryev.cleverbankreactiveremaster.aop.InputLoggable;
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.account.AccountRequest;
@@ -22,40 +23,47 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Validated
+@InputLoggable
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/accounts")
 public class AccountController {
 
     private final AccountService accountService;
+    private final String className = this.getClass().getName();
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<AccountResponse>> findByIdResponse(@PathVariable String id) {
         return accountService.findByIdResponse(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
     @GetMapping
     public Flux<AccountResponse> findAllResponses(@Valid PageRequest request) {
-        return accountService.findAllResponses(request);
+        return accountService.findAllResponses(request)
+                .log(className);
     }
 
     @PostMapping
     public Mono<ResponseEntity<AccountResponse>> save(@RequestBody @Valid AccountRequest request) {
         return accountService.save(request)
-                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse));
+                .map(userResponse -> ResponseEntity.status(HttpStatus.CREATED).body(userResponse))
+                .log(className);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<AccountResponse>> closeAccount(@PathVariable String id) {
         return accountService.closeAccount(id)
-                .map(accountResponse -> ResponseEntity.status(HttpStatus.CREATED).body(accountResponse));
+                .map(accountResponse -> ResponseEntity.status(HttpStatus.CREATED).body(accountResponse))
+                .log(className);
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<DeleteResponse>> delete(@PathVariable String id) {
         return accountService.delete(id)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .log(className);
     }
 
 }
