@@ -11,9 +11,9 @@ import java.util.Arrays;
 @Slf4j
 @Aspect
 @Component
-public class InputLoggerAspect {
+public class RequestLoggerAspect {
 
-    @Before("within(@com.grigoryev.cleverbankreactiveremaster.aop.InputLoggable *)")
+    @Before("within(@com.grigoryev.cleverbankreactiveremaster.aop.RequestLoggable *)")
     public void logRequest(JoinPoint joinPoint) {
         log.info("Request: {}", Arrays.toString(joinPoint.getArgs()));
     }

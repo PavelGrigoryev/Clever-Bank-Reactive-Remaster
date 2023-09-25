@@ -6,12 +6,12 @@
 
 * Java 17
 * Gradle 8.2.1
+* Spring-boot 3.1.3
 * Lombok plugin 8.2.2
 * Postgresql 15.4
 * Liquibase plugin 2.2.0
 * Jooq plugin 8.2
 * Spring-boot-starter-data-r2dbc
-* Spring-boot-starter-jooq
 * Spring-boot-starter-validation
 * Spring-boot-starter-webflux
 * Spring-boot-starter-aop

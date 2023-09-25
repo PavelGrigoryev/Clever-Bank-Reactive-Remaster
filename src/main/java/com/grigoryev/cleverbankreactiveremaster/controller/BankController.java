@@ -1,6 +1,6 @@
 package com.grigoryev.cleverbankreactiveremaster.controller;
 
-import com.grigoryev.cleverbankreactiveremaster.aop.InputLoggable;
+import com.grigoryev.cleverbankreactiveremaster.aop.RequestLoggable;
 import com.grigoryev.cleverbankreactiveremaster.dto.DeleteResponse;
 import com.grigoryev.cleverbankreactiveremaster.dto.PageRequest;
 import com.grigoryev.cleverbankreactiveremaster.dto.bank.BankRequest;
@@ -24,8 +24,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Validated
-@InputLoggable
 @RestController
+@RequestLoggable
 @RequiredArgsConstructor
 @RequestMapping("/banks")
 public class BankController {
