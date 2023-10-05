@@ -78,7 +78,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         .join(b).on(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(b.ID))
                         .join(USER).on(a.USER_ID.eq(USER.ID))
                         .where(TRANSACTION.DATE.between(from).and(to))
-                        .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id).or(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id))))
+                        .and(TRANSACTION.ACCOUNT_SENDER_ID.eq(id).or(TRANSACTION.ACCOUNT_RECIPIENT_ID.eq(id)))
+                        .orderBy(TRANSACTION.DATE))
                 .map(r -> r.into(TransactionStatement.class));
     }
 
